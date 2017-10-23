@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_account"
+            android:icon="@drawable/ic_account_circle"
+            android:title="Perfil" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_history"
+            android:title="Historial" />
+        <item
+            android:id="@+id/nav_favorite"
+            android:icon="@drawable/ic_favorite"
+            android:title="Favoritos" />
+        <item
+            android:id="@+id/nav_diagnostic"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Diagnostico" />
+    </group>
+
+    <item android:title="Opciones">
+        <menu>
+            <item
+                android:id="@+id/nav_help"
+                android:icon="@drawable/ic_help"
+                android:title="Ayuda" />
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Configuración" />
+            <item
+                android:id="@+id/nav_off"
+                android:icon="@drawable/ic_highlight_off"
+                android:title="Cerrar sesión" />
+        </menu>
+    </item>
+
+</menu>

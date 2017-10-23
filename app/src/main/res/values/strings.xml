@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Gasomovil</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_scan">Escanear...</string>
+    <string name="menu_send_cmd">Enviar comandos predeterminados</string>
+    <string name="menu_clr_scr">Borrar registros en pantalla</string>
+    <string name="menu_toggle_obd_mode">Alternar modo simulador / OBD</string>
+    <string name="menu_clear_code">Limpiar código</string>
+</resources>
