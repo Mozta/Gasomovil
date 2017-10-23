@@ -18,8 +18,7 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleTextAppearance="@android:color/transparent"
-            >
+            app:expandedTitleTextAppearance="@android:color/transparent">
 
             <include layout="@layout/content_main" />
 
