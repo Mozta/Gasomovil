@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        /*getSupportActionBar().setDisplayShowTitleEnabled(false);*/
+        /*toolbar.getBackground().setAlpha(0);*/
     }
 
     @Override
