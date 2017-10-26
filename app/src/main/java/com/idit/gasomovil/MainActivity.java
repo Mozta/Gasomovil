@@ -129,9 +129,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_help) {
 
         } else if (id == R.id.nav_settings) {
-            ConfiguracionFragment configuracionFragment = new ConfiguracionFragment();
-            FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, configuracionFragment).commit();
+
         } else if (id == R.id.nav_off) {
 
         }
@@ -145,9 +143,9 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LatLng pp = new LatLng(19.030148, -98.242044);
+        LatLng pp = new LatLng(19.022708, -98.241883);
         MarkerOptions option = new MarkerOptions();
-        option.position(pp).title("IDIT");
+        option.position(pp).title("Combustibles Cúmulo de Virgo, S.A. de C.V.");
         mMap.addMarker(option);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(pp));
     }
