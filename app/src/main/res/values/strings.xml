@@ -11,6 +11,22 @@
     <string name="menu_clear_code">Limpiar código</string>
     <string name="title_activity_maps">Map</string>
     <string name="logo">Gasomovil</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Correo electrónico</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">INICIAR SESIÓN</string>
+    <string name="action_sign_in_short">Ingresar</string>
+    <string name="error_invalid_email">El correo es inválido</string>
+    <string name="error_invalid_password">La contraseña es muy corta</string>
+    <string name="error_incorrect_password">La contraseña es incorrecta</string>
+    <string name="error_field_required">Este campo es requerido</string>
+    <string name="permission_rationale">"Los permisos de contactos son necesarios para proporcionar
+        terminaciones de correo electrónico."
+    </string>
+    <string name="action_forgen_password">¿OLVIDASTE TU CONTRASEÑA?</string>
 </resources>

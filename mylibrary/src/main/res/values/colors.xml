@@ -4,9 +4,4 @@
     <color name="colorPrimaryDark">#558B2F</color>
     <color name="colorAccent">#99CC33</color>
     <color name="colorSecundaryDark">#37474F</color>
-    <color name="colorWhite">#FFF</color>
-    <color name="colorFb">#37474F</color>
-
-    <color name="colorControlActivated">#FFF</color>
-    <color name="colorControlNormal">#FFF</color>
 </resources>

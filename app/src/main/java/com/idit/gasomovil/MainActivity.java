@@ -1,5 +1,6 @@
 package com.idit.gasomovil;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -121,6 +122,8 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_account) {
             // Handle the camera action
         } else if (id == R.id.nav_history) {
+            //Intent tutorial = new Intent(MainActivity.this, FirstActivity.class);
+            //startActivity(tutorial);
 
         } else if (id == R.id.nav_favorite) {
 
