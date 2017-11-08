@@ -59,7 +59,7 @@ public class BannerActivity extends TutorialActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent activitymain = new Intent(BannerActivity.this, MainActivity.class);
+                Intent activitymain = new Intent(BannerActivity.this, RegisterActivity.class);
                 startActivity(activitymain);
             }
         });
