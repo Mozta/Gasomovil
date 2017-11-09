@@ -117,6 +117,25 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
+
+        Spinner spinnerModel = (Spinner) findViewById(R.id.spinner_model);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapterModel = ArrayAdapter.createFromResource(this,
+                R.array.model, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapterModel.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinnerModel.setAdapter(adapterModel);
+
+        Spinner spinnerYear = (Spinner) findViewById(R.id.spinner_year);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapterYear = ArrayAdapter.createFromResource(this,
+                R.array.year, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapterYear.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinnerYear.setAdapter(adapterYear);
+
         Button btnRegister = (Button) findViewById(R.id.register_button);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,8 +203,12 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         }
 
         // Reset errors.
+        mName.setError(null);
+        mLastName.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mPasswordViewConfirm.setError(null);
+        mSerie.setError(null);
 
         // Store values at the time of the login attempt.
         String name = mName.getText().toString();
@@ -260,7 +283,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(name, lastName, email, password, passwordConfirm, serie);
             mAuthTask.execute((Void) null);
         }
     }
@@ -371,12 +394,21 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
+        private final String mName;
+        private final String mLastName;
         private final String mEmail;
         private final String mPassword;
+        private final String mPasswordConfirm;
+        private final String mSerie;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String name, String lastName, String email, String password,
+                      String passwordConfirm, String serie) {
+            mName = name;
+            mLastName = lastName;
             mEmail = email;
             mPassword = password;
+            mPasswordConfirm = passwordConfirm;
+            mSerie = serie;
         }
 
         @Override

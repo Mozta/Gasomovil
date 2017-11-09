@@ -47,4 +47,21 @@
         <item>Mazda</item>
         <item>Hyundai</item>
     </string-array>
+
+    <string-array name="model">
+        <item>Modelo</item>
+        <item>Modelo2</item>
+        <item>Modelo3</item>
+    </string-array>
+
+    <string-array name="year">
+        <item>2010</item>
+        <item>2011</item>
+        <item>2012</item>
+        <item>2013</item>
+        <item>2014</item>
+        <item>2015</item>
+        <item>2016</item>
+        <item>2017</item>
+    </string-array>
 </resources>
