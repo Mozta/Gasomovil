@@ -33,6 +33,8 @@
     </string>
     <string name="action_forgen_password">¿OLVIDASTE TU CONTRASEÑA?</string>
     <string name="title_activity_register">RegisterActivity</string>
+    <string name="forgot_password">Solo necesitamos su correo electrónico registrado para enviarle instrucciones de reestablecimiento de contraseña.</string>
+    <string name="reset_password">RESTABLECER CONTRASEÑA</string>
 
     <!-- Strings for spinners -->
     <string-array name="brand">

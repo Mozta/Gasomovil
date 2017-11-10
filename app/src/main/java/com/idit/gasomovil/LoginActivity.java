@@ -161,7 +161,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        final String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -208,7 +208,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 //FirebaseUser user = mAuth.getCurrentUser();
                                 startActivity(new Intent(LoginActivity.this,
                                         MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                                Toast.makeText(LoginActivity.this, "Bienvenido",
+
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                                Toast.makeText(LoginActivity.this, "Bienvenido "+user.getDisplayName(),
                                         Toast.LENGTH_SHORT).show();
                                 showProgress(false);
                                 mAuth = null;
