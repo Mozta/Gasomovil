@@ -20,6 +20,10 @@ public class ModifyPerfilActivity extends AppCompatActivity {
     private View mNameFormView, mLastNameFormView, mEmailFormView, mPasswordFormView, mBrandFormView,
     mModelFormView, mYearFormView, mSerieFormView;
 
+    //TODO Is necesary modify components in your XML file to addapt board
+
+    //TODO Missing add acitivity for modify password
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,9 +118,6 @@ public class ModifyPerfilActivity extends AppCompatActivity {
             default:
                 break;
         }
-        /*if (valor.equals(2)){
-            mLastNameFormView.setVisibility(View.VISIBLE);
-        }*/
 
         Button btnModify = (Button) findViewById(R.id.modifyPerfil_button);
         btnModify.setOnClickListener(new View.OnClickListener() {
