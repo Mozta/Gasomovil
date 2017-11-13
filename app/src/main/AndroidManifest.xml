@@ -47,8 +47,12 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ForgotPasswordActivity" />
         <activity
-            android:name=".NavPerfilActivity"
+            android:name=".MenuPerfilActivity"
             android:label="@string/title_activity_nav_perfil"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ModifyPerfilActivity"
+            android:label="@string/title_activity_modify_perfil"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

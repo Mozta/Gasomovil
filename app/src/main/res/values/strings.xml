@@ -36,6 +36,13 @@
     <string name="forgot_password">Solo necesitamos su correo electrónico registrado para enviarle instrucciones de reestablecimiento de contraseña.</string>
     <string name="reset_password">RESTABLECER CONTRASEÑA</string>
 
+    <string name="verify_password">Por tu seguridad, ingresa tu contraseña anterior</string>
+
+    <string name="action_modify">GUARDAR</string>
+    <string name="brand">Marca</string>
+    <string name="model">Modelo</string>
+    <string name="year">Año</string>
+
     <!-- Strings for spinners -->
     <string-array name="brand">
         <item>Nissan</item>
@@ -67,4 +74,5 @@
         <item>2017</item>
     </string-array>
     <string name="title_activity_nav_perfil">NavPerfilActivity</string>
+    <string name="title_activity_modify_perfil">ModifyPerfilActivity</string>
 </resources>

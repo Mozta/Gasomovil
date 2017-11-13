@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -147,7 +146,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_account) {
-            Intent tutorial = new Intent(MainActivity.this, NavPerfilActivity.class);
+            Intent tutorial = new Intent(MainActivity.this, MenuPerfilActivity.class);
             startActivity(tutorial);
         } else if (id == R.id.nav_history) {
             //Intent tutorial = new Intent(MainActivity.this, FirstActivity.class);
