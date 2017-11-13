@@ -57,6 +57,10 @@
         <activity
             android:name=".menu.MenuHistoryActivity"
             android:label="@string/title_activity_menu_history"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".menu.MenuFavouriteActivity"
+            android:label="@string/title_activity_menu_favourite"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

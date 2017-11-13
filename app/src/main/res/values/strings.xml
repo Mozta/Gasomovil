@@ -76,4 +76,5 @@
     <string name="title_activity_nav_perfil">NavPerfilActivity</string>
     <string name="title_activity_modify_perfil">ModifyPerfilActivity</string>
     <string name="title_activity_menu_history">MenuHistoryActivity</string>
+    <string name="title_activity_menu_favourite">MenuFavouriteActivity</string>
 </resources>
