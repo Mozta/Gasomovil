@@ -39,13 +39,17 @@
 
         <activity
             android:name=".LoginActivity"
-            android:launchMode="singleTop"
-            android:label="@string/title_activity_login" />
+            android:label="@string/title_activity_login"
+            android:launchMode="singleTop" />
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ForgotPasswordActivity"></activity>
+        <activity android:name=".ForgotPasswordActivity" />
+        <activity
+            android:name=".NavPerfilActivity"
+            android:label="@string/title_activity_nav_perfil"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
