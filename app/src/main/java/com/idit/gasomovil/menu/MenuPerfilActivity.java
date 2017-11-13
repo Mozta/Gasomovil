@@ -1,4 +1,4 @@
-package com.idit.gasomovil;
+package com.idit.gasomovil.menu;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+
+import com.idit.gasomovil.R;
 
 public class MenuPerfilActivity extends AppCompatActivity {
 

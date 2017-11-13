@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.idit.gasomovil.MenuPerfilActivity"
+    tools:context="com.idit.gasomovil.menu.MenuPerfilActivity"
     android:theme="@style/AppThemeWhite"
     tools:showIn="@layout/activity_menu_perfil">
 

@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.idit.gasomovil.menu.MenuHistoryActivity;
+import com.idit.gasomovil.menu.MenuPerfilActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -149,9 +151,8 @@ public class MainActivity extends AppCompatActivity
             Intent tutorial = new Intent(MainActivity.this, MenuPerfilActivity.class);
             startActivity(tutorial);
         } else if (id == R.id.nav_history) {
-            //Intent tutorial = new Intent(MainActivity.this, FirstActivity.class);
-            //startActivity(tutorial);
-
+            Intent tutorial = new Intent(MainActivity.this, MenuHistoryActivity.class);
+            startActivity(tutorial);
         } else if (id == R.id.nav_favorite) {
 
         } else if (id == R.id.nav_diagnostic) {
