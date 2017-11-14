@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
 import com.idit.gasomovil.menu.MenuFavouriteActivity;
+import com.idit.gasomovil.menu.MenuHelpActivity;
 import com.idit.gasomovil.menu.MenuHistoryActivity;
 import com.idit.gasomovil.menu.MenuPerfilActivity;
 
@@ -162,7 +163,8 @@ public class MainActivity extends AppCompatActivity
             Intent tutorial = new Intent(MainActivity.this, MenuDiagnosisActivity.class);
             startActivity(tutorial);
         } else if (id == R.id.nav_help) {
-
+            Intent tutorial = new Intent(MainActivity.this, MenuHelpActivity.class);
+            startActivity(tutorial);
         } else if (id == R.id.nav_settings) {
 
         } else if (id == R.id.nav_off) {

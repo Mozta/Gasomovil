@@ -64,7 +64,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".menu.MenuDiagnosisActivity"
-            android:label="@string/title_activity_menu_diagnosis"></activity>
+            android:label="@string/title_activity_menu_diagnosis" />
+        <activity
+            android:name=".menu.MenuHelpActivity"
+            android:label="@string/title_activity_menu_help" />
     </application>
 
 </manifest>
