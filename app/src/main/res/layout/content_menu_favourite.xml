@@ -8,4 +8,9 @@
     tools:context="com.idit.gasomovil.menu.MenuFavouriteActivity"
     tools:showIn="@layout/activity_menu_favourite">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
 </android.support.constraint.ConstraintLayout>

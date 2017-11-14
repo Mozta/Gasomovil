@@ -61,7 +61,10 @@
         <activity
             android:name=".menu.MenuFavouriteActivity"
             android:label="@string/title_activity_menu_favourite"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".menu.MenuDiagnosisActivity"
+            android:label="@string/title_activity_menu_diagnosis"></activity>
     </application>
 
 </manifest>

@@ -73,8 +73,13 @@
         <item>2016</item>
         <item>2017</item>
     </string-array>
+
     <string name="title_activity_nav_perfil">NavPerfilActivity</string>
     <string name="title_activity_modify_perfil">ModifyPerfilActivity</string>
     <string name="title_activity_menu_history">MenuHistoryActivity</string>
     <string name="title_activity_menu_favourite">MenuFavouriteActivity</string>
+    <string name="title_activity_menu_diagnosis">Diagnóstico</string>
+    <string name="title_efficiency">Eficiencia</string>
+    <string name="title_engine">Motor</string>
+    <string name="title_other">Otro</string>
 </resources>

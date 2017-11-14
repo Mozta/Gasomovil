@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_efficiency"
+        android:icon="@drawable/ic_velocimeter"
+        android:title="@string/title_efficiency" />
+
+    <item
+        android:id="@+id/navigation_engine"
+        android:icon="@drawable/ic_check_engine"
+        android:title="@string/title_engine" />
+
+    <item
+        android:id="@+id/navigation_other"
+        android:icon="@drawable/ic_developer_board"
+        android:title="@string/title_other" />
+
+</menu>
