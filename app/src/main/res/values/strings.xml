@@ -24,6 +24,7 @@
     <string name="action_sign_in_short">Ingresar</string>
     <string name="action_sign_up">REGISTRARSE</string>
     <string name="action_sign_up_short">Registrar</string>
+    <string name="action_send">ENVIAR</string>
     <string name="error_invalid_email">El correo es inválido</string>
     <string name="error_invalid_password">La contraseña es muy corta</string>
     <string name="error_incorrect_password">La contraseña es incorrecta</string>
@@ -86,4 +87,5 @@
     <string name="title_device">Dispositivo</string>
     <string name="title_faqs">FAQS</string>
     <string name="title_support">Soporte</string>
+
 </resources>

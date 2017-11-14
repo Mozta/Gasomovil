@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.idit.gasomovil.R;
 
@@ -62,6 +64,18 @@ public class MenuHelpActivity extends AppCompatActivity {
         mTextMessage = (TextView) findViewById(R.id.message_help);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation_help);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        Button btnSupport = (Button) findViewById(R.id.support_button);
+        btnSupport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO Here implements method for send a email
+
+                Toast.makeText(MenuHelpActivity.this, "Correo enviado exitosamente.",
+                        Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     @Override
