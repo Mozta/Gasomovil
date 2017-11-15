@@ -15,19 +15,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
-        android:paddingTop="40dp"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/message_help"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="Eficiencia"
-            android:textSize="20sp"
-            android:paddingBottom="12dp"
-            android:textStyle="bold" />
-
 
         <LinearLayout
             android:id="@+id/layout_device"
@@ -51,25 +39,15 @@
             android:id="@+id/layout_faqs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="top|center"
-            android:visibility="gone"
+            android:background="@color/colorGray"
+            android:visibility="visible"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/faqs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cosas FAQS"
-                android:textSize="48sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="xD"
-                android:textSize="48sp"
-                android:textStyle="bold" />
-
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:paddingHorizontal="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </LinearLayout>
 
@@ -85,19 +63,16 @@
             android:visibility="gone"
             android:orientation="vertical">
 
-            <android.support.design.widget.TextInputLayout
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/support_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Nombre"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
-            </android.support.design.widget.TextInputLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="18dp"
+                android:text="Escribe tu comentario"
+                android:textAlignment="center"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
