@@ -109,13 +109,13 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                     @Override
                     public void onPreOpen() {
-                        changeRotate(viewHolder.button, 0f,180f).start();
+                        changeRotate(viewHolder.button, 180f,0f).start();
                         expandState.put(position,true);
                     }
 
                     @Override
                     public void onPreClose() {
-                        changeRotate(viewHolder.button, 180f,0f).start();
+                        changeRotate(viewHolder.button, 0f,180f).start();
                         expandState.put(position,false);
                     }
 

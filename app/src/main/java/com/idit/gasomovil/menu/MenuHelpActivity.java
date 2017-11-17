@@ -28,7 +28,6 @@ public class MenuHelpActivity extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManager;
     List<Item> items = new ArrayList<>();
 
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
