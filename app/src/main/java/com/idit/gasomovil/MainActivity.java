@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        /*toolbar.getBackground().setAlpha(0);*/
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);

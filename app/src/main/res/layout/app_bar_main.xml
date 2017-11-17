@@ -9,7 +9,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:theme="@style/AppTheme.light">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -17,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_marginTop="24dp"
             android:background="@color/colorPrimaryDark"
-            android:elevation="1dp" />
+            android:elevation="4dp" />
 
 
         <include layout="@layout/content_main" />
