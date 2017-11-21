@@ -4,9 +4,88 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_scan">Escanear...</string>
+    <string name="action_scan">Escanear…</string>
     <string name="menu_send_cmd">Enviar comandos predeterminados</string>
     <string name="menu_clr_scr">Borrar registros en pantalla</string>
     <string name="menu_toggle_obd_mode">Alternar modo simulador / OBD</string>
     <string name="menu_clear_code">Limpiar código</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="logo">Gasomovil</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Correo electrónico</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="prompt_password_repeat">Confirmar contraseña</string>
+    <string name="action_sign_in">INICIAR SESIÓN</string>
+    <string name="action_sign_in_short">Ingresar</string>
+    <string name="action_sign_up">REGISTRARSE</string>
+    <string name="action_sign_up_short">Registrar</string>
+    <string name="action_send">ENVIAR</string>
+    <string name="error_invalid_email">El correo es inválido</string>
+    <string name="error_invalid_password">La contraseña es muy corta</string>
+    <string name="error_incorrect_password">La contraseña es incorrecta</string>
+    <string name="error_field_required">Este campo es requerido</string>
+    <string name="permission_rationale">"Los permisos de contactos son necesarios para proporcionar
+        terminaciones de correo electrónico."
+    </string>
+    <string name="action_forgen_password">¿OLVIDASTE TU CONTRASEÑA?</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="forgot_password">Solo necesitamos su correo electrónico registrado para enviarle instrucciones de reestablecimiento de contraseña.</string>
+    <string name="reset_password">RESTABLECER CONTRASEÑA</string>
+
+    <string name="verify_password">Por tu seguridad, ingresa tu contraseña anterior</string>
+
+    <string name="action_modify">GUARDAR</string>
+    <string name="brand">Marca</string>
+    <string name="model">Modelo</string>
+    <string name="year">Año</string>
+
+    <!-- Strings for spinners -->
+    <string-array name="brand">
+        <item>Nissan</item>
+        <item>GM</item>
+        <item>Volkswagen</item>
+        <item>Toyota</item>
+        <item>FCA México</item>
+        <item>Honda</item>
+        <item>Kia</item>
+        <item>Ford</item>
+        <item>Mazda</item>
+        <item>Hyundai</item>
+    </string-array>
+
+    <string-array name="model">
+        <item>Modelo</item>
+        <item>Modelo2</item>
+        <item>Modelo3</item>
+    </string-array>
+
+    <string-array name="year">
+        <item>2010</item>
+        <item>2011</item>
+        <item>2012</item>
+        <item>2013</item>
+        <item>2014</item>
+        <item>2015</item>
+        <item>2016</item>
+        <item>2017</item>
+    </string-array>
+
+    <string name="title_activity_nav_perfil">NavPerfilActivity</string>
+    <string name="title_activity_modify_perfil">Perfil</string>
+    <string name="title_activity_menu_history">Historial</string>
+    <string name="title_activity_menu_favourite">Favoritos</string>
+    <string name="title_activity_menu_diagnosis">Diagnóstico</string>
+    <string name="title_activity_menu_help">Ayuda</string>
+    <string name="title_efficiency">Eficiencia</string>
+    <string name="title_engine">Motor</string>
+    <string name="title_other">Otro</string>
+    <string name="title_device">Dispositivo</string>
+    <string name="title_faqs">FAQS</string>
+    <string name="title_support">Soporte</string>
+
 </resources>
