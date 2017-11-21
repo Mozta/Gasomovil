@@ -144,13 +144,6 @@
                 android:textSize="48sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="xD"
-                android:textSize="48sp"
-                android:textStyle="bold" />
-
 
         </LinearLayout>
 
@@ -169,14 +162,6 @@
                 android:text="Más cosas"
                 android:textSize="48sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=":P"
-                android:textSize="48sp"
-                android:textStyle="bold" />
-
 
         </LinearLayout>
 
