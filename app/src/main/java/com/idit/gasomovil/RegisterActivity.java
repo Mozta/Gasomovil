@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,9 +31,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -56,17 +68,20 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private Usuario usuario = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView, mName, mLastName, mPasswordViewConfirm, mSerie;
     private View mProgressView;
     private View mLoginFormView;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Init Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_register);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_register);
         toolbar.setLogo(R.drawable.ic_logo_appbar);
@@ -198,9 +213,6 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mName.setError(null);
@@ -283,8 +295,41 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(name, lastName, email, password, passwordConfirm, serie);
-            mAuthTask.execute((Void) null);
+            usuario = new Usuario(name, lastName, email, password, passwordConfirm, serie);
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d("Registro", "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                DatabaseReference myRef = database.getReference("User").child(user.getUid());
+
+
+                                Map<String, String> values = new HashMap<>(usuario.tohashmap());
+                                myRef.setValue(values);
+                                showProgress(false);
+                                // Creamos usuario en base de datos y asignamos el tipo
+
+                                Toast.makeText(RegisterActivity.this, "Registro creado con exito",
+                                        Toast.LENGTH_SHORT).show();
+
+                                finish();
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w("Registro", "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(RegisterActivity.this, "El registro fallo, intentalo de nuevo",
+                                        Toast.LENGTH_SHORT).show();
+                                showProgress(false);
+
+                            }
+
+                            // ...
+                        }
+                    });
+
         }
     }
 
@@ -295,7 +340,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 8;
+        return password.length() > 5;
     }
 
     /**
@@ -392,7 +437,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class Usuario  {
 
         private final String mName;
         private final String mLastName;
@@ -401,7 +446,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         private final String mPasswordConfirm;
         private final String mSerie;
 
-        UserLoginTask(String name, String lastName, String email, String password,
+        Usuario(String name, String lastName, String email, String password,
                       String passwordConfirm, String serie) {
             mName = name;
             mLastName = lastName;
@@ -409,57 +454,20 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             mPassword = password;
             mPasswordConfirm = passwordConfirm;
             mSerie = serie;
+
+
+
         }
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
+        private HashMap tohashmap(){
+            HashMap<String, String> user = new HashMap();
+            user.put("nombre", mName);
+            user.put("apellido",mLastName);
+            user.put("email", mEmail);
+            user.put("serie", mSerie);
+            return  user;
         }
 
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
-
-
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return false;
     }
 }
 
