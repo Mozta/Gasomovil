@@ -45,7 +45,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Location mLastLocation;
 
     private static int UPDATE_INTERVAL = 5000; //5 secs
-    private static int FATEST_INTERVAL = 3000;
+    private static int FASTEST_INTERVAL = 3000;
     private static int DISPLACEMENT = 10;
 
     DatabaseReference ref;
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
 
@@ -335,11 +335,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(23, -102),4));
+        //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition ));
+
         //Create oil station area
-        LatLng oil_station_area = new LatLng(19.029956, -98.242032);
-        //mMap.addMarker(new MarkerOptions().position(oil_station_area).title("Gasolinera Alpina").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gas_verde)));
+        LatLng fuel_station_area = new LatLng(19.029956, -98.242032);
+        //mMap.addMarker(new MarkerOptions().position(fuel_station_area).title("Gasolinera Alpina").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gas_verde)));
         mMap.addCircle(new CircleOptions()
-            .center(oil_station_area)
+            .center(fuel_station_area)
             .radius(15) //in metters => 15m
             .strokeColor(Color.GREEN)
             .fillColor(0x220000FF)
@@ -348,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Add GeoQuery here
         //0.5f = 0.5km = 500m
         //0.015f = 0.015km = 15m
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(oil_station_area.latitude, oil_station_area.longitude), 0.015f);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(fuel_station_area.latitude, fuel_station_area.longitude), 0.015f);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {

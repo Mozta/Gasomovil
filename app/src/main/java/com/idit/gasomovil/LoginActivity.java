@@ -37,6 +37,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -209,10 +214,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 startActivity(new Intent(LoginActivity.this,
                                         MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
+                                //Instance to user logued
                                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                                Toast.makeText(LoginActivity.this, "Bienvenido "+user.getDisplayName(),
-                                        Toast.LENGTH_SHORT).show();
+                                //Create reference to BD for query name
+                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                DatabaseReference myRef = database.getReference().child("User").child(user.getUid());
+
+                                //Create a snapshot with date child user
+                                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        String value = (String) dataSnapshot.child("nombre").getValue();
+                                        if (value != null){
+                                            Log.e(TAG,value);
+                                            Toast.makeText(LoginActivity.this, "Bienvenido "+value,
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                        else{
+                                            Log.e(TAG, "Snapshot error");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+
+                                });
+
                                 showProgress(false);
                                 mAuth = null;
                                 finish();
