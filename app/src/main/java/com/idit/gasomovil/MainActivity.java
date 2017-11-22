@@ -17,6 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -28,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
+    View mapView;
 
     //Play services location
     private static final int MY_PERMISSION_REQUEST_CODE = 7192;
@@ -163,7 +166,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View view = navigationView.getHeaderView(0);
         textUsername = (TextView) view.findViewById(R.id.nav_username);
         textUsername.setText(user.getEmail());
-        
+
+        mapView = mapFragment.getView();
+
         setUpLocation();
     }
 
@@ -218,7 +223,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //Add marker
                             if(mCurrent != null)
                                 mCurrent.remove(); //remove old marker
-                            mCurrent = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude,longitude)).title("Tu"));
+                            //mCurrent = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude,longitude)).title("Tu"));
+                            enableMyLocation();
 
                             //Move Camera to this position
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude),18.0f));
@@ -231,6 +237,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else
             Log.d("GASOMOVIL", "No se puede obtener tu ubicacion");
+    }
+
+    /**
+     * Enables the My Location layer if the fine location permission has been granted.
+     */
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
     }
 
     private void createLocationRequest() {
@@ -382,6 +401,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+
+        // Get the button view
+        View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        // and next place it, on bottom right (as Google Maps app)
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
+                locationButton.getLayoutParams();
+        // position on right bottom
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        layoutParams.setMargins(0, 0, 30, 300);
 
         //mMap.setTrafficEnabled(true);
     }
