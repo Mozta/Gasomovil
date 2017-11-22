@@ -91,9 +91,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     GeoFire geoFire;
 
     Marker mCurrent;
-    
+
     private TextView textUsername;
-    private FloatingActionButton fab;
+    private FloatingActionButton fab, fab2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +149,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         fab.setVisibility(View.GONE);
+
+        fab2 = (FloatingActionButton) findViewById(R.id.fab2);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -401,16 +403,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        //Floating button for center position map
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mLastLocation != null){
+                    final double latitude = mLastLocation.getLatitude();
+                    final double longitude = mLastLocation.getLongitude();
 
-        // Get the button view
-        View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-        // and next place it, on bottom right (as Google Maps app)
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
-                locationButton.getLayoutParams();
-        // position on right bottom
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        layoutParams.setMargins(0, 0, 30, 300);
+                    LatLng target = new LatLng(latitude, longitude);
+                    CameraPosition position = mMap.getCameraPosition();
+
+                    CameraPosition.Builder builder = new CameraPosition.Builder();
+                    builder.zoom(18);
+                    builder.target(target);
+
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                }
+            }
+        });
 
         //mMap.setTrafficEnabled(true);
     }

@@ -34,4 +34,12 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_local_gas_station" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_favorite" />
+
 </android.support.design.widget.CoordinatorLayout>
