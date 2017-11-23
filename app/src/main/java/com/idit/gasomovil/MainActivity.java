@@ -7,10 +7,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +23,8 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -47,6 +54,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -90,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DatabaseReference ref;
     GeoFire geoFire;
 
+    String userID;
+
     Marker mCurrent;
 
     private TextView textUsername;
@@ -102,7 +113,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mAuth = FirebaseAuth.getInstance();
 
-        ref = FirebaseDatabase.getInstance().getReference("MiPosicion");
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        ref = FirebaseDatabase.getInstance().getReference("User").child(userID);
+
         geoFire = new GeoFire(ref);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -148,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .setAction("Action", null).show();
             }
         });
-        fab.setVisibility(View.GONE);
+        fab.setVisibility(View.INVISIBLE);
 
         fab2 = (FloatingActionButton) findViewById(R.id.fab2);
 
@@ -218,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final double longitude = mLastLocation.getLongitude();
 
             //Update to firebase
-            geoFire.setLocation("Tu", new GeoLocation(latitude, longitude),
+            geoFire.setLocation("Ubicacion", new GeoLocation(latitude, longitude),
                     new GeoFire.CompletionListener() {
                         @Override
                         public void onComplete(String key, DatabaseError error) {
@@ -360,15 +374,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(23, -102),4));
         //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition ));
 
-        //Create oil station area
+        //Create fuel station area
         LatLng fuel_station_area = new LatLng(19.029956, -98.242032);
-        //mMap.addMarker(new MarkerOptions().position(fuel_station_area).title("Gasolinera Alpina").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gas_verde)));
+        mMap.addMarker(new MarkerOptions()
+                .position(fuel_station_area)
+                .icon(vectorToBitmap(R.drawable.ic_gasolinera_verde))
+                .title("Gasolinera Alpina")
+                .snippet("Calificación: 4"));
+
         mMap.addCircle(new CircleOptions()
             .center(fuel_station_area)
             .radius(15) //in metters => 15m
             .strokeColor(Color.GREEN)
             .fillColor(0x220000FF)
             .strokeWidth(5.0f));
+
+        //Create fuel station area
+        LatLng fuel_station_area2 = new LatLng(19.03025, -98.241895);
+        mMap.addMarker(new MarkerOptions()
+                .position(fuel_station_area2)
+                .icon(vectorToBitmap(R.drawable.ic_gasolinera_amarillo))
+                .title("Gasolinera Alpina 2")
+                .snippet("Calificación: 3.5"));
+
+        mMap.addCircle(new CircleOptions()
+                .center(fuel_station_area2)
+                .radius(15) //in metters => 15m
+                .strokeColor(Color.YELLOW)
+                .fillColor(0x220000FF)
+                .strokeWidth(5.0f));
+
+        //Create fuel station area
+        LatLng fuel_station_area3 = new LatLng(19.030642, -98.241294);
+        mMap.addMarker(new MarkerOptions()
+                .position(fuel_station_area3)
+                .icon(vectorToBitmap(R.drawable.ic_gasolinera_rojo))
+                .title("Gasolinera Alpina 2")
+                .snippet("Calificación: 3.5"));
+
+        mMap.addCircle(new CircleOptions()
+                .center(fuel_station_area3)
+                .radius(15) //in metters => 15m
+                .strokeColor(Color.RED)
+                .fillColor(0x220000FF)
+                .strokeWidth(5.0f));
 
         //Add GeoQuery here
         //0.5f = 0.5km = 500m
@@ -384,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onKeyExited(String key) {
                 sendNotification("GASOMOVIL",String.format("%s has salido de una estación de carga",key));
-                fab.setVisibility(View.GONE);
+                fab.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -425,6 +474,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         //mMap.setTrafficEnabled(true);
+    }
+
+    /**
+     * Demonstrates converting a {@link Drawable} to a {@link BitmapDescriptor},
+     * for use as a marker icon.
+     */
+    private BitmapDescriptor vectorToBitmap(@DrawableRes int id) {
+        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), id, null);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void sendNotification(String title, String content) {
