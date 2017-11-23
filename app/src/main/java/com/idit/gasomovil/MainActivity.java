@@ -250,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Permission to access the location is missing.
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.setMyLocationEnabled(true);
         }
     }

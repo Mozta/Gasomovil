@@ -41,4 +41,9 @@
         <item name="colorAccent">@color/colorAccent</item>
 
     </style>
+
+    <style name="AppTheme.FloatingButton" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/colorWhite</item>
+    </style>
 </resources>

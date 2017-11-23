@@ -24,22 +24,26 @@
         <include layout="@layout/content_main" />
     </RelativeLayout>
 
-
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_local_gas_station" />
+        app:srcCompat="@drawable/ic_local_gas_station"
+        app:useCompatPadding="true" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab2"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|center"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_favorite" />
+        android:layout_gravity="top|end"
+        android:layout_margin="24dp"
+        android:theme="@style/AppTheme.FloatingButton"
+        app:fabSize="mini"
+        app:layout_anchor="@+id/fab"
+        app:layout_anchorGravity="top|end"
+        app:srcCompat="@drawable/ic_my_location" />
+
 
 </android.support.design.widget.CoordinatorLayout>
