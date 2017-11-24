@@ -8,6 +8,10 @@
     <color name="colorGray">#efefef</color>
     <color name="colorGray2">#f7f7f7</color>
     <color name="colorFb">#37474F</color>
+    <color name="colorPremium">#fc4141</color>
+    <color name="colorMagna">#278436</color>
+    <color name="colorDiesel">#202020</color>
+
 
     <color name="colorControlActivated">#FFF</color>
     <color name="colorControlNormal">#FFF</color>

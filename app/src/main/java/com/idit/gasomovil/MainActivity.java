@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -105,6 +106,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private TextView textUsername;
     private FloatingActionButton fab, fab2;
+
+    //BottomInfo
+    TextView imgExpandable;
+    BottomInfoFragment mBottomInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +190,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mapView = mapFragment.getView();
 
+        //Init view
+        imgExpandable = (TextView) findViewById(R.id.imgExpandable);
+        mBottomInfo = BottomInfoFragment.newInstance("Info bottom sheet");
+        imgExpandable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomInfo.show(getSupportFragmentManager(),mBottomInfo.getTag());
+            }
+        });
         setUpLocation();
     }
 
