@@ -46,4 +46,9 @@
         <!-- Customize your theme here. -->
         <item name="colorAccent">@color/colorWhite</item>
     </style>
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/colorPrimary</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+    </style>
 </resources>
