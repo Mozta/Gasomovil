@@ -10,10 +10,10 @@
         android:id="@+id/navigation_fuel_fav"
         android:icon="@drawable/ic_favorite"
         android:title="@string/title_activity_menu_favourite" />
-
+    <!--
     <item
         android:id="@+id/navigation_fuel_charge"
         android:icon="@drawable/ic_local_gas_station"
         android:title="@string/title_fuel_charge" />
-
+    -->
 </menu>

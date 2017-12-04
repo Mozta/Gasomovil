@@ -3,21 +3,31 @@ package com.idit.gasomovil.menu;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.idit.gasomovil.R;
 
 public class ModifyPerfilActivity extends AppCompatActivity {
 
-    private EditText mName, mLastName, mEmail, mPassword, mBrand, mModel, mYear, mSerie;
+    private static final String LOG = "";
+    private static final String TAG = "";
+    private EditText mName, mLastName, mEmail, mPassword, mSerie;
+    private String mModel, mBrand;
+    private Object mYear;
 
     private View mNameFormView, mLastNameFormView, mEmailFormView, mPasswordFormView, mBrandFormView,
     mModelFormView, mYearFormView, mSerieFormView;
+
+    private DatabaseReference mDatabase;
 
     //TODO Is necesary modify components in your XML file to addapt board
 
@@ -27,6 +37,10 @@ public class ModifyPerfilActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_perfil);
+
+
+        //database.getReference().child("User").child(mUser.getUid());
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -83,19 +97,52 @@ public class ModifyPerfilActivity extends AppCompatActivity {
 
         String valueElement = (String) getIntent().getExtras().getString("element");
         String valuePerfil = (String) getIntent().getExtras().getString("value_perfil");
+        final String valueUid = (String) getIntent().getExtras().getString("uid");
+
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("User").child(valueUid);
+
+        Button btnModify = (Button) findViewById(R.id.modifyPerfil_button);
 
         switch (valueElement){
             case "name":
                 mNameFormView.setVisibility(View.VISIBLE);
                 mName.setText(valuePerfil);
+
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("name").setValue(String.valueOf(mName.getText()));
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             case "lastName":
                 mLastNameFormView.setVisibility(View.VISIBLE);
                 mLastName.setText(valuePerfil);
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("last_name").setValue(String.valueOf(mLastName.getText()));
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             case "email":
                 mEmailFormView.setVisibility(View.VISIBLE);
                 mEmail.setText(valuePerfil);
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("email").setValue(String.valueOf(mEmail.getText()));
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             case "password":
                 mPasswordFormView.setVisibility(View.VISIBLE);
@@ -103,30 +150,94 @@ public class ModifyPerfilActivity extends AppCompatActivity {
                 break;
             case "brand":
                 mBrandFormView.setVisibility(View.VISIBLE);
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        mBrand = (String) parent.getItemAtPosition(position);
+                        Toast.makeText(ModifyPerfilActivity.this, (String) parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("brand").setValue(mBrand);
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             case "model":
                 mModelFormView.setVisibility(View.VISIBLE);
+                spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        mModel = (String) parent.getItemAtPosition(position);
+                        Toast.makeText(ModifyPerfilActivity.this, (String) parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("model").setValue(mModel);
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             case "year":
                 mYearFormView.setVisibility(View.VISIBLE);
+                spinnerYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        mYear = parent.getItemAtPosition(position);
+                        //Toast.makeText(ModifyPerfilActivity.this, (String) parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("year").setValue(Integer.parseInt((String) mYear));
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             case "serie":
                 mSerieFormView.setVisibility(View.VISIBLE);
                 mSerie.setText(valuePerfil);
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDatabase.child("serie").setValue(String.valueOf(mSerie.getText()));
+                        Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
                 break;
             default:
                 break;
         }
 
-        Button btnModify = (Button) findViewById(R.id.modifyPerfil_button);
-        btnModify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(ModifyPerfilActivity.this, "Mofificación guardada con exito.",
-                        Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        });
     }
 
     @Override

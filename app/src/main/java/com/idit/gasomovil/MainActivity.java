@@ -69,9 +69,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
 import com.idit.gasomovil.menu.MenuFavouriteActivity;
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         OnStreetViewPanoramaReadyCallback,
         LocationListener{
 
+    private static final String TAG = "";
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
     View mapView;
@@ -104,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static int FASTEST_INTERVAL = 3000;
     private static int DISPLACEMENT = 10;
 
-    DatabaseReference ref;
+    DatabaseReference ref, ref_fuel_station;
     GeoFire geoFire;
 
     String userID;
@@ -131,6 +134,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         ref = FirebaseDatabase.getInstance().getReference("User").child(userID);
+
+        ref_fuel_station = FirebaseDatabase.getInstance().getReference("Fuel_station");
+
+        // Read from the database
+        ref_fuel_station.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String value = dataSnapshot.getValue(String.class);
+                Log.d(TAG, "Value is: " + value);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
+        System.out.println(ref_fuel_station);
 
         geoFire = new GeoFire(ref);
 
@@ -437,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMap.addMarker(new MarkerOptions()
                 .position(fuel_station_area)
                 .icon(vectorToBitmap(R.drawable.ic_gasolinera_verde))
-                .title("Gasolinera Alpina")
+                .title("Combustibles Cúmulo de Virgo, S.A. de C.V.")
                 .snippet("Calificación: 4"));
 
         mMap.addCircle(new CircleOptions()
@@ -452,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMap.addMarker(new MarkerOptions()
                 .position(fuel_station_area2)
                 .icon(vectorToBitmap(R.drawable.ic_gasolinera_amarillo))
-                .title("Gasolinera Alpina 2")
+                .title("PEMEX")
                 .snippet("Calificación: 3.5"));
 
         mMap.addCircle(new CircleOptions()
@@ -467,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMap.addMarker(new MarkerOptions()
                 .position(fuel_station_area3)
                 .icon(vectorToBitmap(R.drawable.ic_gasolinera_rojo))
-                .title("Gasolinera Alpina 2")
+                .title("PEMEX 2")
                 .snippet("Calificación: 3.5"));
 
         mMap.addCircle(new CircleOptions()
@@ -484,13 +508,75 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                sendNotification("GASOMOVIL",String.format("%s has entrado a una estación de carga",key));
+                sendNotification("GASOMOVIL",String.format("Has entrado a una estación de carga"));
                 fab.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onKeyExited(String key) {
-                sendNotification("GASOMOVIL",String.format("%s has salido de una estación de carga",key));
+                sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?",key));
+                fab.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+                Log.d("MOVIMIENTO", String.format("%s moviendose dentro de la estacion de carga [%f/%f]",key,location.latitude,location.longitude));
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+                Log.e("ERROR",""+error);
+            }
+        });
+
+        GeoQuery geoQuery2 = geoFire.queryAtLocation(new GeoLocation(fuel_station_area2.latitude, fuel_station_area2.longitude), 0.015f);
+        geoQuery2.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                sendNotification("GASOMOVIL",String.format("Has entrado a una estación de carga"));
+                fab.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+                sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?"));
+                fab.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+                Log.d("MOVIMIENTO", String.format("%s moviendose dentro de la estacion de carga [%f/%f]",key,location.latitude,location.longitude));
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+                Log.e("ERROR",""+error);
+            }
+        });
+
+        GeoQuery geoQuery3 = geoFire.queryAtLocation(new GeoLocation(fuel_station_area3.latitude, fuel_station_area3.longitude), 0.015f);
+        geoQuery3.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                sendNotification("GASOMOVIL",String.format("Has entrado a una estación de carga"));
+                fab.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+                sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?"));
                 fab.setVisibility(View.INVISIBLE);
             }
 
