@@ -1,6 +1,7 @@
 package com.idit.gasomovil.menu;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,6 +13,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.idit.gasomovil.R;
@@ -20,13 +27,15 @@ public class ModifyPerfilActivity extends AppCompatActivity {
 
     private static final String LOG = "";
     private static final String TAG = "";
-    private EditText mName, mLastName, mEmail, mPassword, mSerie;
+    private EditText mName, mLastName, mEmail, mPassword, mPassword2, mSerie;
     private String mModel, mBrand;
     private Object mYear;
 
-    private View mNameFormView, mLastNameFormView, mEmailFormView, mPasswordFormView, mBrandFormView,
+    private View mNameFormView, mLastNameFormView, mEmailFormView, mPasswordFormView, mPasswordFormView2, mBrandFormView,
     mModelFormView, mYearFormView, mSerieFormView;
 
+    private Button btnModify, btnModify_pass;
+    private FirebaseUser user;
     private DatabaseReference mDatabase;
 
     //TODO Is necesary modify components in your XML file to addapt board
@@ -38,6 +47,7 @@ public class ModifyPerfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_perfil);
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
         //database.getReference().child("User").child(mUser.getUid());
 
@@ -53,6 +63,7 @@ public class ModifyPerfilActivity extends AppCompatActivity {
         mLastName = findViewById(R.id.modify_perfil_lastname);
         mEmail = findViewById(R.id.modify_perfil_email);
         mPassword = findViewById(R.id.modify_perfil_password);
+        mPassword2 = findViewById(R.id.modify_perfil_password2);
         //mBrand = findViewById(R.id.spinner_brand);
         //mModel = findViewById(R.id.spinner_model);
         //mYear = findViewById(R.id.spinner_year);
@@ -62,6 +73,7 @@ public class ModifyPerfilActivity extends AppCompatActivity {
         mLastNameFormView = findViewById(R.id.form_modify_lastname);
         mEmailFormView = findViewById(R.id.form_modify_email);
         mPasswordFormView = findViewById(R.id.form_modify_password);
+        mPasswordFormView2 = findViewById(R.id.form_modify_password2);
         mBrandFormView = findViewById(R.id.form_modify_brand);
         mModelFormView = findViewById(R.id.form_modify_model);
         mYearFormView = findViewById(R.id.form_modify_year);
@@ -101,7 +113,8 @@ public class ModifyPerfilActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("User").child(valueUid);
 
-        Button btnModify = (Button) findViewById(R.id.modifyPerfil_button);
+        btnModify = (Button) findViewById(R.id.modifyPerfil_button);
+        btnModify_pass = (Button) findViewById(R.id.modifyPerfil_button2);
 
         switch (valueElement){
             case "name":
@@ -146,7 +159,21 @@ public class ModifyPerfilActivity extends AppCompatActivity {
                 break;
             case "password":
                 mPasswordFormView.setVisibility(View.VISIBLE);
+                btnModify.setText("SIGUIENTE");
                 mPassword.setText(valuePerfil);
+
+                //btnModify.setVisibility(View.GONE);
+                //btnModify_pass.setVisibility(View.VISIBLE);
+
+                btnModify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mPasswordFormView.setVisibility(View.GONE);
+                        mPasswordFormView2.setVisibility(View.VISIBLE);
+                        btnModify_pass.setVisibility(View.VISIBLE);
+                        btnModify.setVisibility(View.GONE);
+                    }
+                });
                 break;
             case "brand":
                 mBrandFormView.setVisibility(View.VISIBLE);
@@ -237,6 +264,40 @@ public class ModifyPerfilActivity extends AppCompatActivity {
             default:
                 break;
         }
+
+        btnModify_pass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(user.getEmail(), String.valueOf(mPassword.getText()));
+
+                // Prompt the user to re-provide their sign-in credentials
+                user.reauthenticate(credential)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    user.updatePassword(String.valueOf(mPassword2.getText())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d(TAG, "Password updated");
+                                                Toast.makeText(ModifyPerfilActivity.this, "Contraseña actualizada", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Log.d(TAG, "Error password not updated");
+                                                Toast.makeText(ModifyPerfilActivity.this, "Error, contraseña no actualizada", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    Log.d(TAG, "Error auth failed");
+                                    Toast.makeText(ModifyPerfilActivity.this, "Error, su contraseña es incorrecta", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                finish();
+            }
+        });
 
     }
 

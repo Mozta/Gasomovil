@@ -38,8 +38,10 @@
     <string name="reset_password">RESTABLECER CONTRASEÑA</string>
 
     <string name="verify_password">Por tu seguridad, ingresa tu contraseña anterior</string>
+    <string name="new_password">Escribe la nueva contraseña</string>
 
     <string name="action_modify">GUARDAR</string>
+    <string name="modify_password">SIGUIENTE</string>
     <string name="brand">Marca</string>
     <string name="model">Modelo</string>
     <string name="year">Año</string>
