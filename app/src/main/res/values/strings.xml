@@ -37,7 +37,7 @@
     <string name="forgot_password">Solo necesitamos su correo electrónico registrado para enviarle instrucciones de reestablecimiento de contraseña.</string>
     <string name="reset_password">RESTABLECER CONTRASEÑA</string>
 
-    <string name="verify_password">Por tu seguridad, ingresa tu contraseña anterior</string>
+    <string name="verify_password">Por tu seguridad, ingresa tu anterior contraseña</string>
     <string name="new_password">Escribe la nueva contraseña</string>
 
     <string name="action_modify">GUARDAR</string>

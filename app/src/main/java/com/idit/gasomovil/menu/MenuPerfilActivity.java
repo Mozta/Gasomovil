@@ -56,7 +56,7 @@ public class MenuPerfilActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference().child("User").child(mUser.getUid());
 
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -122,7 +122,7 @@ public class MenuPerfilActivity extends AppCompatActivity {
     public void editPsssword(View view) {
         Intent tutorial = new Intent(MenuPerfilActivity.this, ModifyPerfilActivity.class);
         tutorial.putExtra("element", "password");
-        tutorial.putExtra("value_perfil",mBrand.getText().toString());
+        //tutorial.putExtra("value_perfil",mBrand.getText().toString());
         tutorial.putExtra("uid",mUser.getUid());
         startActivity(tutorial);
     }
