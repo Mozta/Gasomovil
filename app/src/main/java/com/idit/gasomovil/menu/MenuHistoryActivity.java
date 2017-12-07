@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -32,6 +33,8 @@ public class MenuHistoryActivity extends AppCompatActivity {
 
     private String userID;
 
+    private TextView emptyText;
+
     private FirebaseAuth mAuth;
 
     private FirebaseDatabase database;
@@ -52,6 +55,8 @@ public class MenuHistoryActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("Historial");
 
+        emptyText = findViewById(R.id.text_no_data);
+
         result = new ArrayList<>();
 
         recyclerView = findViewById(R.id.history_list);
@@ -65,6 +70,8 @@ public class MenuHistoryActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         updateList();
+
+        checkIfEmpty();
     }
 
     @Override
@@ -88,6 +95,8 @@ public class MenuHistoryActivity extends AppCompatActivity {
 
                 result.add(model);
                 adapter.notifyDataSetChanged();
+
+                checkIfEmpty();
             }
 
             @Override
@@ -108,6 +117,8 @@ public class MenuHistoryActivity extends AppCompatActivity {
                 int index = getItemIndex(model);
                 result.remove(index);
                 adapter.notifyItemRemoved(index);
+
+                checkIfEmpty();
             }
 
             @Override
@@ -137,6 +148,16 @@ public class MenuHistoryActivity extends AppCompatActivity {
 
     private void removeHistory(int position){
         mDatabase.child(result.get(position).key).removeValue();
+    }
+
+    private void checkIfEmpty(){
+        if (result.size() == 0){
+            recyclerView.setVisibility(View.INVISIBLE);
+            emptyText.setVisibility(View.VISIBLE);
+        } else{
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

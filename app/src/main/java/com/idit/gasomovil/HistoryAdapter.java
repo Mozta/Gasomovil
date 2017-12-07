@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,7 +35,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HisyoryV
         HistoryModel history = list.get(position);
 
         holder.textName.setText(history.name);
-        holder.textDate.setText(String.valueOf(history.timestamp));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("d/MMM/yyyy");
+        //sdf.format(new Date(history.timestamp));
+
+        holder.textDate.setText(sdf.format(new Date(history.timestamp *1000L)));
         holder.textPrice.setText(String.valueOf(history.price));
         holder.textScore.setRating(history.score);
 

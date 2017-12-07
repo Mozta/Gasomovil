@@ -15,4 +15,14 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <TextView
+        android:id="@+id/text_no_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:gravity="center"
+        android:paddingTop="24dp"
+        android:text="Sin historial :("
+        android:textSize="20sp"/>
+
 </android.support.constraint.ConstraintLayout>
