@@ -60,7 +60,6 @@ public class MenuHistoryActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(linearLayoutManager);
 
-
         adapter = new HistoryAdapter(result);
         recyclerView.setAdapter(adapter);
 
@@ -84,16 +83,19 @@ public class MenuHistoryActivity extends AppCompatActivity {
         mDatabase.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                result.add(dataSnapshot.getValue(HistoryModel.class));
+                HistoryModel model = dataSnapshot.getValue(HistoryModel.class);
+                model.setKey(dataSnapshot.getKey());
+
+                result.add(model);
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 HistoryModel model = dataSnapshot.getValue(HistoryModel.class);
+                model.setKey(dataSnapshot.getKey());
 
                 int index = getItemIndex(model);
-
                 result.set(index, model);
                 adapter.notifyItemChanged(index);
             }
@@ -101,9 +103,9 @@ public class MenuHistoryActivity extends AppCompatActivity {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 HistoryModel model = dataSnapshot.getValue(HistoryModel.class);
+                model.setKey(dataSnapshot.getKey());
 
                 int index = getItemIndex(model);
-
                 result.remove(index);
                 adapter.notifyItemRemoved(index);
             }
