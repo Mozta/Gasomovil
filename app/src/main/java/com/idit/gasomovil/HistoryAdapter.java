@@ -41,7 +41,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HisyoryV
             @Override
             public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
                 contextMenu.add(holder.getAdapterPosition(), 0, 0, "Eliminar");
-                contextMenu.add(holder.getAdapterPosition(), 1, 0, "Cambiar");
             }
         });
     }

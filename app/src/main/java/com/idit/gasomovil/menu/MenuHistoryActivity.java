@@ -22,6 +22,7 @@ import com.idit.gasomovil.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MenuHistoryActivity extends AppCompatActivity {
 
@@ -70,8 +71,7 @@ public class MenuHistoryActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item){
         switch (item.getItemId()){
             case 0:
-                break;
-            case 1:
+                removeHistory(item.getGroupId());
                 break;
         }
         return super.onContextItemSelected(item);
@@ -133,6 +133,10 @@ public class MenuHistoryActivity extends AppCompatActivity {
         }
         return index;
 
+    }
+
+    private void removeHistory(int position){
+        mDatabase.child(result.get(position).key).removeValue();
     }
 
     @Override
