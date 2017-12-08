@@ -456,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(23, -102),4));
         //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition ));
 
-        //Create fuel station area
+        //Create fuel Station area
         LatLng fuel_station_area = new LatLng(19.029956, -98.242032);
         mMap.addMarker(new MarkerOptions()
                 .position(fuel_station_area)
@@ -471,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             .fillColor(0x220000FF)
             .strokeWidth(5.0f));
 
-        //Create fuel station area
+        //Create fuel Station area
         LatLng fuel_station_area2 = new LatLng(19.03025, -98.241895);
         mMap.addMarker(new MarkerOptions()
                 .position(fuel_station_area2)
@@ -486,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .fillColor(0x220000FF)
                 .strokeWidth(5.0f));
 
-        //Create fuel station area
+        //Create fuel Station area
         LatLng fuel_station_area3 = new LatLng(19.030642, -98.241294);
         mMap.addMarker(new MarkerOptions()
                 .position(fuel_station_area3)

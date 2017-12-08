@@ -8,9 +8,20 @@
     tools:context="com.idit.gasomovil.menu.MenuFavouriteActivity"
     tools:showIn="@layout/activity_menu_favourite">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/favorite_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </android.support.v7.widget.RecyclerView>
+
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:id="@+id/text_no_data_favorite"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:visibility="invisible"
+        android:gravity="center"
+        android:paddingTop="24dp"
+        android:text="Aún no añades favoritos :("
+        android:textSize="20sp"/>
 </android.support.constraint.ConstraintLayout>
