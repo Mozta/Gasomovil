@@ -43,7 +43,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
         holder.itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-                contextMenu.add(holder.getAdapterPosition(), 0, 0, "Eliminar");
+                contextMenu.add(holder.getAdapterPosition(), 0, 0, "Información");
+                contextMenu.add(holder.getAdapterPosition(), 1, 0, "Eliminar");
             }
         });
     }

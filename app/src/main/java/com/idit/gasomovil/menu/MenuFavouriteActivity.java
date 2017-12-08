@@ -1,5 +1,6 @@
 package com.idit.gasomovil.menu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.idit.gasomovil.BottomInfoFragment;
 import com.idit.gasomovil.FavoriteAdapter;
 import com.idit.gasomovil.FavoriteModel;
 import com.idit.gasomovil.R;
@@ -84,6 +86,9 @@ public class MenuFavouriteActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item){
         switch (item.getItemId()){
             case 0:
+                infoFavorite(item.getGroupId());
+                break;
+            case 1:
                 removeFavorite(item.getGroupId());
                 break;
         }
@@ -184,6 +189,10 @@ public class MenuFavouriteActivity extends AppCompatActivity {
         }
         return index;
 
+    }
+
+    private void infoFavorite(int groupId) {
+        startActivity(new Intent(MenuFavouriteActivity.this, BottomInfoFragment.class));
     }
 
     private void removeFavorite(int position){

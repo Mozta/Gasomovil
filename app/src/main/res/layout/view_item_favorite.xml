@@ -7,19 +7,38 @@
     android:background="?attr/selectableItemBackground"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/text_name"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/dates"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:text="Gasolinera Alpina"
-        android:textSize="18sp" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/text_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#000"
+            android:text="Gasolinera Alpina"
+            android:textSize="18sp" />
+
+        <RatingBar
+            android:id="@+id/myRatingBar_favorite"
+            android:theme="@style/RatingBar"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:numStars="5"
+            android:rating="3.5"
+            android:isIndicator="true" />
+    </LinearLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/text_name"
+        android:layout_below="@id/dates"
         android:background="@drawable/border_bottom"
         android:orientation="horizontal">
 
@@ -95,20 +114,5 @@
 
         </LinearLayout>
     </LinearLayout>
-
-    <RatingBar
-        android:id="@+id/myRatingBar_favorite"
-        android:theme="@style/RatingBar"
-        style="?android:attr/ratingBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/text_price"
-        android:numStars="5"
-        android:rating="3.5"
-        android:isIndicator="true" />
-
-
 
 </RelativeLayout>
