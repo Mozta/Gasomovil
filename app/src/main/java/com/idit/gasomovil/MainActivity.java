@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -119,6 +120,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private View parallax;
 
     private List<StationModel> result;
+
+    private TextView name_station, premium_station, magna_station, diesel_station;
+    private RatingBar ranking_station;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         final View bottomsheet = findViewById(R.id.bottomsheet);
+        //View bsheet = findViewById(R.id.bottomsheet);
         behavior = GoogleMapsBottomSheetBehavior.from(bottomsheet);
         parallax = findViewById(R.id.parallax);
         behavior.setParallax(parallax);
@@ -568,6 +573,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public boolean onMarkerClick(Marker marker) {
                 behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
                 behavior.setHideable(false);
+                View bsheet = findViewById(R.id.bottomsheet);
+                name_station = bsheet.findViewById(R.id.bottom_sheet_title);
+                premium_station = bsheet.findViewById(R.id.premium_price_station);
+                magna_station = bsheet.findViewById(R.id.magna_price_station);
+                diesel_station = bsheet.findViewById(R.id.diesel_price_station);
+                ranking_station = bsheet.findViewById(R.id.myRatingBar_station);
+                name_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).name);
+                premium_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).prices.get("premium").toString());
+                magna_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).prices.get("magna").toString());
+                diesel_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).prices.get("diesel").toString());
+                ranking_station.setRating(result.get(Integer.parseInt(marker.getId().substring(1))).score);
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                 return true;
             }
