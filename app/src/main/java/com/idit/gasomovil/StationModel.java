@@ -10,7 +10,9 @@ public class StationModel {
     Float latitude;
     Float longitude;
     String name;
+    String address;
     Float score;
+    String phone;
     Map<String, Object> comments;
     Map<String, Object> prices;
     public String key;
@@ -18,11 +20,13 @@ public class StationModel {
     public StationModel() {
     }
 
-    public StationModel(Float latitude, Float longitude, String name, Float score, Map<String, Object> comments, Map<String, Object> prices, String key) {
+    public StationModel(Float latitude, Float longitude, String name, String address, Float score, String phone, Map<String, Object> comments, Map<String, Object> prices, String key) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
+        this.address = address;
         this.score = score;
+        this.phone = phone;
         this.comments = comments;
         this.prices = prices;
         this.key = key;

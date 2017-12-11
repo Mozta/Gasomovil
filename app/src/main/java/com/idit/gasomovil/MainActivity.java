@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private List<StationModel> result;
 
-    private TextView name_station, premium_station, magna_station, diesel_station;
+    private TextView name_station, premium_station, magna_station, diesel_station, address_station, phone_station;
     private RatingBar ranking_station;
 
     @Override
@@ -255,6 +256,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_fuel_go:
+                    Toast.makeText(MainActivity.this, "Go", Toast.LENGTH_SHORT).show();
+                    return true;
+                case R.id.navigation_fuel_fav:
+                    Toast.makeText(MainActivity.this, "Favorito", Toast.LENGTH_SHORT).show();
+                    return true;
+            }
+            return false;
+        }
+    };
 
     private int getItemIndex(StationModel stationModel){
         int index = -1;
@@ -573,17 +591,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public boolean onMarkerClick(Marker marker) {
                 behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
                 behavior.setHideable(false);
+
                 View bsheet = findViewById(R.id.bottomsheet);
+
                 name_station = bsheet.findViewById(R.id.bottom_sheet_title);
                 premium_station = bsheet.findViewById(R.id.premium_price_station);
                 magna_station = bsheet.findViewById(R.id.magna_price_station);
                 diesel_station = bsheet.findViewById(R.id.diesel_price_station);
                 ranking_station = bsheet.findViewById(R.id.myRatingBar_station);
-                name_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).name);
-                premium_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).prices.get("premium").toString());
-                magna_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).prices.get("magna").toString());
-                diesel_station.setText(result.get(Integer.parseInt(marker.getId().substring(1))).prices.get("diesel").toString());
-                ranking_station.setRating(result.get(Integer.parseInt(marker.getId().substring(1))).score);
+                address_station = bsheet.findViewById(R.id.address_fuel_station);
+                phone_station = bsheet.findViewById(R.id.phone_fuel_station);
+
+                int i = Integer.parseInt(marker.getId().substring(1));
+
+                name_station.setText(result.get(i).name);
+                premium_station.setText(result.get(i).prices.get("premium").toString());
+                magna_station.setText(result.get(i).prices.get("magna").toString());
+                diesel_station.setText(result.get(i).prices.get("diesel").toString());
+                ranking_station.setRating(result.get(i).score);
+                address_station.setText(result.get(i).address);
+                phone_station.setText(result.get(i).phone);
+
+                behavior.setAnchorColor(rankingColor(result.get(i).score));
+
+                BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation2);
+                navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                 return true;
             }
@@ -599,11 +632,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int rankingColor(Float score) {
         if (score < 2)
-            return Color.RED;
+            return Color.parseColor("#FF6C46");
         else if (score < 4)
-            return Color.YELLOW;
+            return Color.parseColor("#FBAF25");
         else
-            return Color.GREEN;
+            return Color.parseColor("#99CC33");
     }
 
     private @DrawableRes int rankingIcon(Float score){
