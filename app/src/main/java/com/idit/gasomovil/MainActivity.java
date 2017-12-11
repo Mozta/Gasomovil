@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
@@ -124,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private TextView name_station, premium_station, magna_station, diesel_station, address_station, phone_station;
     private RatingBar ranking_station;
+
+    private String keyStationSelected;
+    private Float latitudeSelected, longitudeSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,10 +268,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_fuel_go:
+                    Uri gmmIntentUri = Uri.parse("google.navigation:q="+longitudeSelected+","+ latitudeSelected);
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    startActivity(mapIntent);
                     Toast.makeText(MainActivity.this, "Go", Toast.LENGTH_SHORT).show();
                     return true;
                 case R.id.navigation_fuel_fav:
-                    Toast.makeText(MainActivity.this, "Favorito", Toast.LENGTH_SHORT).show();
+                    ref.child("Favorites").child(keyStationSelected).setValue(keyStationSelected);
+                    Toast.makeText(MainActivity.this, "Añadido a favoritos", Toast.LENGTH_SHORT).show();
                     return true;
             }
             return false;
@@ -613,6 +622,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 phone_station.setText(result.get(i).phone);
 
                 behavior.setAnchorColor(rankingColor(result.get(i).score));
+
+                //Guardamos el id de la gasolinera seleccionada por si el usuario la agrega a favoritos
+                keyStationSelected = result.get(i).key;
+                latitudeSelected = result.get(i).latitude;
+                longitudeSelected = result.get(i).longitude;
 
                 BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation2);
                 navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
