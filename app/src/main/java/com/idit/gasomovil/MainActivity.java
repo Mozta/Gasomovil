@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     mapIntent.setPackage("com.google.android.apps.maps");
                     startActivity(mapIntent);
-                    Toast.makeText(MainActivity.this, "Go", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Trazando ruta", Toast.LENGTH_SHORT).show();
                     return true;
                 case R.id.navigation_fuel_fav:
                     ref.child("Favorites").child(keyStationSelected).setValue(keyStationSelected);
