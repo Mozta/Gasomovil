@@ -1,11 +1,15 @@
 package com.idit.gasomovil;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -15,6 +19,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,13 +30,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +50,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,7 +85,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.idit.gasomovil.Adapter.PairedListAdapter;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
+import com.idit.gasomovil.Dialog.PairedDevicesDialog;
+import com.idit.gasomovil.Utility.MyLog;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
 import com.idit.gasomovil.menu.MenuFavouriteActivity;
 import com.idit.gasomovil.menu.MenuHelpActivity;
@@ -78,14 +96,19 @@ import com.idit.gasomovil.menu.MenuHistoryActivity;
 import com.idit.gasomovil.menu.MenuPerfilActivity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener{
+        LocationListener,
+        PairedDevicesDialog.PairedDeviceDialogListener{
 
     private static final String TAG = "";
     private FirebaseAuth mAuth;
@@ -128,6 +151,157 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String keyStationSelected;
     private Float latitudeSelected, longitudeSelected;
+
+    /*private RecyclerView recyclerView;
+    private List<CommentModel> result_comment;
+    private CommentAdapter;
+    private TextView emptyComment;*/
+
+    /* ========== ELM327 ============= */
+    //private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG_DIALOG = "dialog";
+    private static final String NO_BLUETOOTH = "Ups, tu dispositivo no soporta bluetooth";
+    private static final String[] PIDS = {
+            "01", "02", "03", "04", "05", "06", "07", "08",
+            "09", "0A", "0B", "0C", "0D", "0E", "0F", "10",
+            "11", "12", "13", "14", "15", "16", "17", "18",
+            "19", "1A", "1B", "1C", "1D", "1E", "1F", "20"
+    };
+
+    // Commands
+    //private static final String[] INIT_COMMANDS = {"AT Z", "AT SP 0", "0105", "010C", "010D", "0131", "012F"};
+    private static final String[] INIT_COMMANDS = {"AT SP 0", "012F"};
+    private int mCMDPointer = -1;
+
+    // Intent request codes
+    private static final int REQUEST_ENABLE_BT = 101;
+    private static final int REQUEST_CONNECT_DEVICE_SECURE = 102;
+    private static final int REQUEST_CONNECT_DEVICE_INSECURE = 103;
+
+    // Message types accessed from the BluetoothIOGateway Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+
+    // Key names accesses from the BluetoothIOGateway Handler
+    public static final String DEVICE_NAME = "device_name";
+    public static final String TOAST = "toast_message";
+
+    // Bluetooth
+    private BluetoothIOGateway mIOGateway;
+    private static BluetoothAdapter mBluetoothAdapter;
+    private DeviceBroadcastReceiver mReceiver;
+    private PairedDevicesDialog dialog;
+    private List<BluetoothDevice> mDeviceList;
+
+    // Widgets
+    private TextView mConnectionStatus;
+    private TextView mMonitor;
+    private EditText mCommandPrompt;
+    private ImageButton mBtnSend;
+    private Button mCargar;
+
+    // Variable def
+    private boolean inSimulatorMode = false;
+    private static StringBuilder mSbCmdResp;
+    private static StringBuilder mPartialResponse;
+    private String mConnectedDeviceName;
+    @SuppressLint("HandlerLeak")
+    private final Handler mMsgHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1)
+                    {
+                        case BluetoothIOGateway.STATE_CONNECTING:
+                            //mConnectionStatus.setText(getString(R.string.BT_connecting));
+                            //mConnectionStatus.setBackgroundColor(Color.YELLOW);
+                            Toast.makeText(MainActivity.this, "Conectando...", Toast.LENGTH_SHORT).show();
+                            break;
+
+                        case BluetoothIOGateway.STATE_CONNECTED:
+                            //mBtnSend.setEnabled(true);
+                            //mConnectionStatus.setText(getString(R.string.BT_status_connected_to) + " " + mConnectedDeviceName);
+                            //mConnectionStatus.setBackgroundColor(Color.GREEN);
+                            Toast.makeText(MainActivity.this, "Conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
+                            sendDefaultCommands();
+                            break;
+
+                        case BluetoothIOGateway.STATE_LISTEN:
+                        case BluetoothIOGateway.STATE_NONE:
+                            //mBtnSend.setEnabled(false);
+                            //mConnectionStatus.setText(getString(R.string.BT_status_not_connected));
+                            //mConnectionStatus.setBackgroundColor(Color.RED);
+                            Toast.makeText(MainActivity.this, "Conexión fallida :(", Toast.LENGTH_SHORT).show();
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+
+                case MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+
+                    // construct a string from the valid bytes in the buffer
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    readMessage = readMessage.trim();
+                    readMessage = readMessage.toUpperCase();
+                    displayLog(mConnectedDeviceName + ": " + readMessage);
+                    if (!inSimulatorMode)
+                    {
+                        if (readMessage.length() > 0) {
+                            char lastChar = readMessage.charAt(readMessage.length() - 1);
+                            if (lastChar == '>')
+                            {
+                                parseResponse(mPartialResponse.toString() + readMessage);
+                                mPartialResponse.setLength(0);
+                            }
+                            else
+                            {
+                                mPartialResponse.append(readMessage);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        mSbCmdResp.append("R>>");
+                        mSbCmdResp.append(readMessage);
+                        mSbCmdResp.append("\n");
+                        mMonitor.setText(mSbCmdResp.toString());
+                    }
+                    break;
+
+                case MESSAGE_WRITE:
+                    byte[] writeBuf = (byte[]) msg.obj;
+
+                    // construct a string from the buffer
+                    String writeMessage = new String(writeBuf);
+                    displayLog("Me: " + writeMessage);
+                    mSbCmdResp.append("W>>");
+                    mSbCmdResp.append(writeMessage);
+                    mSbCmdResp.append("\n");
+                    mMonitor.setText(mSbCmdResp.toString());
+                    break;
+
+                case MESSAGE_TOAST:
+                    displayMessage(msg.getData().getString(TOAST));
+                    break;
+
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    break;
+            }
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,11 +361,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mCMDPointer = -1;
+                sendFuelTankCommands();
                 Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
-        fab.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.VISIBLE);
 
         fab2 = (FloatingActionButton) findViewById(R.id.fab2);
 
@@ -259,6 +435,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+
+        /* ============ ELM327 =========== */
+        // log
+        displayLog("=>\n***************\n     ELM 327 started\n***************");
+
+        // connect widgets
+        mMonitor = (TextView) findViewById(R.id.tvMonitor);
+        mMonitor.setMovementMethod(new ScrollingMovementMethod());
+
+
+        // make sure user has Bluetooth hardware
+        displayLog("Trate de revisar el hardware bluetooth...");
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null)
+        {
+            // Device does not support Bluetooth
+            displayMessage(NO_BLUETOOTH);
+            displayLog(NO_BLUETOOTH);
+
+            MainActivity.this.finish();
+        }
+        // log
+        displayLog("Bluetooth encontrado.");
+
+        // Init variables
+        mSbCmdResp = new StringBuilder();
+        mPartialResponse = new StringBuilder();
+        mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -420,25 +624,535 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    protected void onStart()
+    {
+        super.onStart();
+
+        if (mBluetoothAdapter == null)
+        {
+            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
+
+        // make sure Bluetooth is enabled
+        displayLog("Intente comprobar la disponibilidad...");
+        if (!mBluetoothAdapter.isEnabled())
+        {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        else
+        {
+            displayLog("Bluetooth esta disponible");
+
+            queryPairedDevices();
+            setupMonitor();
+        }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        // Register EventBus
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        // Unregister EventBus
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        // Un register receiver
+        if (mReceiver != null)
+        {
+            unregisterReceiver(mReceiver);
+        }
+
+        // Stop scanning if is in progress
+        cancelScanning();
+
+        // Stop mIOGateway
+        if (mIOGateway != null)
+        {
+            mIOGateway.stop();
+        }
+
+        // Clear StringBuilder
+        if (mSbCmdResp.length() > 0)
+        {
+            mSbCmdResp.setLength(0);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.action_scan:
+                queryPairedDevices();
+                setupMonitor();
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.nav_account) {
-            return true;
+            case R.id.action_send_cmd:
+                mCMDPointer = -1;
+                sendDefaultCommands();
+                return true;
+
+            case R.id.menu_clr_scr:
+                mSbCmdResp.setLength(0);
+                mMonitor.setText("");
+                return true;
+
+            case R.id.menu_toggle_obd_mode:
+                inSimulatorMode = !inSimulatorMode;
+                if(inSimulatorMode)
+                {
+                    displayMessage("Modo simulador habilitado");
+                }
+                else
+                {
+                    displayMessage("Modo simulador deshabilitado");
+                }
+                return true;
+
+            case R.id.menu_clear_code:
+                sendOBD2CMD("04");
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        switch (requestCode)
+        {
+            case REQUEST_ENABLE_BT:
+                if (resultCode == RESULT_CANCELED)
+                {
+                    displayMessage("Bluetooth no activado :(");
+                    displayLog("Bluetooth no activado :(");
+                    return;
+                }
+
+                if (resultCode == RESULT_OK)
+                {
+                    displayLog("Bluetooth activado ");
+
+                    queryPairedDevices();
+                    setupMonitor();
+                }
+
+                break;
+
+            default:
+                // nothing at the moment
+        }
+    }
+
+    private void setupMonitor()
+    {
+        // Start mIOGateway
+        if (mIOGateway == null)
+        {
+            mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
+        }
+
+        // Only if the state is STATE_NONE, do we know that we haven't started already
+        if (mIOGateway.getState() == BluetoothIOGateway.STATE_NONE)
+        {
+            // Start the Bluetooth chat services
+            mIOGateway.start();
+        }
+
+        // clear string builder if contains data
+        if (mSbCmdResp.length() > 0)
+        {
+            mSbCmdResp.setLength(0);
+        }
+
+    }
+
+    private void queryPairedDevices()
+    {
+        displayLog("Intente consultar dispositivos emparejados...");
+
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        // If there are paired devices
+        if (pairedDevices.size() > 0)
+        {
+            PairedDevicesDialog dialog = new PairedDevicesDialog();
+            dialog.setAdapter(new PairedListAdapter(this, pairedDevices), false);
+            showChooserDialog(dialog);
+        }
+        else
+        {
+            displayLog("No se ha encontrado ningún dispositivo emparejado");
+
+            scanAroundDevices();
+        }
+    }
+
+    private void showChooserDialog(DialogFragment dialogFragment)
+    {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
+        if (prev != null)
+        {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        dialogFragment.show(ft, "dialog");
+    }
+
+    private void scanAroundDevices()
+    {
+        displayLog("Intentando escanerar dispositivos...");
+
+        if (mReceiver == null)
+        {
+            // Register the BroadcastReceiver
+            mReceiver = new DeviceBroadcastReceiver();
+            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(mReceiver, filter);
+        }
+
+        // Start scanning
+        mBluetoothAdapter.startDiscovery();
+    }
+
+    private void cancelScanning()
+    {
+        if (mBluetoothAdapter.isDiscovering())
+        {
+            mBluetoothAdapter.cancelDiscovery();
+
+            displayLog("Escaneo cancelado");
+        }
+    }
+
+    /**
+     * Callback method for once a new device detected.
+     *
+     * @param device BluetoothDevice
+     */
+    public void onEvent(BluetoothDevice device)
+    {
+        if (mDeviceList == null)
+        {
+            mDeviceList = new ArrayList<>(10);
+        }
+
+        mDeviceList.add(device);
+
+        // create dialog
+        final Fragment fragment = this.getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
+        if (fragment != null && fragment instanceof PairedDevicesDialog)
+        {
+            PairedListAdapter adapter = dialog.getAdapter();
+            adapter.notifyDataSetChanged();
+        }
+        else
+        {
+            dialog = new PairedDevicesDialog();
+            dialog.setAdapter(new PairedListAdapter(this, new HashSet<>(mDeviceList)), true);
+            showChooserDialog(dialog);
+        }
+    }
+
+    private void displayMessage(String msg)
+    {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private void displayLog(String msg)
+    {
+        Log.d(TAG, msg);
+    }
+
+    @Override
+    public void onDeviceSelected(BluetoothDevice device)
+    {
+        cancelScanning();
+
+        displayLog("Dispositivo seleccionado: " + device.getName() + " (" + device.getAddress() + ")");
+
+        // Attempt to connect to the device
+        mIOGateway.connect(device, true);
+    }
+
+    @Override
+    public void onSearchAroundDevicesRequested()
+    {
+        scanAroundDevices();
+    }
+
+    @Override
+    public void onCancelScanningRequested()
+    {
+        cancelScanning();
+    }
+
+
+
+    private void sendOBD2CMD(String sendMsg)
+    {
+        if (mIOGateway.getState() != BluetoothIOGateway.STATE_CONNECTED)
+        {
+            displayMessage("El dispositivo Bluetooth no está disponible");
+            return;
+        }
+
+        String strCMD = sendMsg;
+        strCMD += '\r';
+
+        byte[] byteCMD = strCMD.getBytes();
+        mIOGateway.write(byteCMD);
+    }
+
+    private void sendDefaultCommands()
+    {
+        if(inSimulatorMode)
+        {
+            displayMessage("¡Estás en modo simulador!");
+            return;
+        }
+
+        if (mCMDPointer >= INIT_COMMANDS.length)
+        {
+            mCMDPointer = -1;
+            return;
+        }
+
+        // reset pointer
+        if (mCMDPointer < 0)
+        {
+            mCMDPointer = 0;
+        }
+
+        sendOBD2CMD(INIT_COMMANDS[mCMDPointer]);
+    }
+
+    private void sendFuelTankCommands()
+    {
+        if(inSimulatorMode)
+        {
+            displayMessage("¡Estás en modo simulador!");
+            return;
+        }
+
+        if (mCMDPointer >= INIT_COMMANDS.length)
+        {
+            mCMDPointer = -1;
+            return;
+        }
+
+        // reset pointer
+        if (mCMDPointer < 0)
+        {
+            mCMDPointer = 0;
+        }
+
+        sendOBD2CMD("012F");
+    }
+
+    private void parseResponse(String buffer)
+    {
+        switch (mCMDPointer)
+        {
+            case 0: // CMD: AT SP 0, no parse needed
+                mSbCmdResp.append("R>>");
+                mSbCmdResp.append(buffer);
+                mSbCmdResp.append("\n");
+                break;
+
+            case 1: // CMD: 012F fuel tank
+                double ft = showLitersFuelTank(buffer);
+                mSbCmdResp.append("R>>");
+                mSbCmdResp.append(buffer);
+                mSbCmdResp.append( " (Tanque con: ");
+                mSbCmdResp.append(ft);
+                mSbCmdResp.append("Lts)");
+                mSbCmdResp.append("\n");
+                break;
+
+            default:
+                mSbCmdResp.append("R>>");
+                mSbCmdResp.append(buffer);
+                mSbCmdResp.append("\n");
+        }
+
+        mMonitor.setText(mSbCmdResp.toString());
+
+        if (mCMDPointer >= 0)
+        {
+            mCMDPointer++;
+            sendDefaultCommands();
+        }
+    }
+
+    private String cleanResponse(String text)
+    {
+        text = text.trim();
+        text = text.replace("\t", "");
+        text = text.replace(" ", "");
+        text = text.replace(">", "");
+
+        return text;
+    }
+
+    private int showEngineCoolantTemperature(String buffer)
+    {
+        String buf = buffer;
+        buf = cleanResponse(buf);
+
+        if (buf.contains("4105"))
+        {
+            try
+            {
+                buf = buf.substring(buf.indexOf("4105"));
+
+                String temp = buf.substring(4, 6);
+                int A = Integer.valueOf(temp, 16);
+                A -= 40;
+
+                return A;
+            }
+            catch (IndexOutOfBoundsException | NumberFormatException e)
+            {
+                MyLog.e(TAG, e.getMessage());
+            }
+        }
+
+        return -1;
+    }
+
+    private int showEngineRPM(String buffer)
+    {
+        String buf = buffer;
+        buf = cleanResponse(buf);
+
+        if (buf.contains("410C"))
+        {
+            try
+            {
+                buf = buf.substring(buf.indexOf("410C"));
+
+                String MSB = buf.substring(4, 6);
+                String LSB = buf.substring(6, 8);
+                int A = Integer.valueOf(MSB, 16);
+                int B = Integer.valueOf(LSB, 16);
+
+                return  ((A * 256) + B) / 4;
+            }
+            catch (IndexOutOfBoundsException | NumberFormatException e)
+            {
+                MyLog.e(TAG, e.getMessage());
+            }
+        }
+
+        return -1;
+    }
+
+    private int showVehicleSpeed(String buffer)
+    {
+        String buf = buffer;
+        buf = cleanResponse(buf);
+
+        if (buf.contains("410D"))
+        {
+            try
+            {
+                buf = buf.substring(buf.indexOf("410D"));
+
+                String temp = buf.substring(4, 6);
+
+                return Integer.valueOf(temp, 16);
+            }
+            catch (IndexOutOfBoundsException | NumberFormatException e)
+            {
+                MyLog.e(TAG, e.getMessage());
+            }
+        }
+
+        return -1;
+    }
+
+    private int showDistanceTraveled(String buffer)
+    {
+        String buf = buffer;
+        buf = cleanResponse(buf);
+
+        if (buf.contains("4131"))
+        {
+            try
+            {
+                buf = buf.substring(buf.indexOf("4131"));
+
+                String MSB = buf.substring(4, 6);
+                String LSB = buf.substring(6, 8);
+                int A = Integer.valueOf(MSB, 16);
+                int B = Integer.valueOf(LSB, 16);
+
+                return (A * 256) + B;
+            }
+            catch (IndexOutOfBoundsException | NumberFormatException e)
+            {
+                MyLog.e(TAG, e.getMessage());
+            }
+        }
+
+        return -1;
+    }
+
+    private double showLitersFuelTank(String buffer)
+    {
+        String buf = buffer;
+        buf = cleanResponse(buf);
+
+        if (buf.contains("412F"))
+        {
+            try
+            {
+                buf = buf.substring(buf.indexOf("412F"));
+
+                String temp = buf.substring(4, 6);
+                double A = Integer.valueOf(temp, 16);
+                A = ((A/2.55)/100)*44;
+
+                return A;
+            }
+            catch (IndexOutOfBoundsException | NumberFormatException e)
+            {
+                MyLog.e(TAG, e.getMessage());
+            }
+        }
+
+        return -1;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
