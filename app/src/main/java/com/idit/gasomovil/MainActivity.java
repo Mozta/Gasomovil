@@ -88,12 +88,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.idit.gasomovil.Adapter.PairedListAdapter;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
 import com.idit.gasomovil.Dialog.PairedDevicesDialog;
+import com.idit.gasomovil.Model.Item;
 import com.idit.gasomovil.Utility.MyLog;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
 import com.idit.gasomovil.menu.MenuFavouriteActivity;
 import com.idit.gasomovil.menu.MenuHelpActivity;
 import com.idit.gasomovil.menu.MenuHistoryActivity;
 import com.idit.gasomovil.menu.MenuPerfilActivity;
+import com.idit.gasomovil.menu.MenuSettingsActivity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -152,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String keyStationSelected;
     private Float latitudeSelected, longitudeSelected;
 
+    private Menu menu;
+
+
     /*private RecyclerView recyclerView;
     private List<CommentModel> result_comment;
     private CommentAdapter;
@@ -171,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Commands
     //private static final String[] INIT_COMMANDS = {"AT Z", "AT SP 0", "0105", "010C", "010D", "0131", "012F"};
     private static final String[] INIT_COMMANDS = {"AT SP 0", "012F"};
-    private int mCMDPointer = -1;
+    private static int mCMDPointer = -1;
 
     // Intent request codes
     private static final int REQUEST_ENABLE_BT = 101;
@@ -190,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TOAST = "toast_message";
 
     // Bluetooth
-    private BluetoothIOGateway mIOGateway;
+    private static BluetoothIOGateway mIOGateway;
     private static BluetoothAdapter mBluetoothAdapter;
     private DeviceBroadcastReceiver mReceiver;
     private PairedDevicesDialog dialog;
@@ -204,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Button mCargar;
 
     // Variable def
-    private boolean inSimulatorMode = false;
+    private static boolean inSimulatorMode = false;
     private static StringBuilder mSbCmdResp;
     private static StringBuilder mPartialResponse;
     private String mConnectedDeviceName;
@@ -219,12 +224,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1)
                     {
+                        // El dispositivo está realizando una conexión
                         case BluetoothIOGateway.STATE_CONNECTING:
                             //mConnectionStatus.setText(getString(R.string.BT_connecting));
                             //mConnectionStatus.setBackgroundColor(Color.YELLOW);
                             Toast.makeText(MainActivity.this, "Conectando...", Toast.LENGTH_SHORT).show();
                             break;
 
+                        //El dispositivo tiene una conexión activa
                         case BluetoothIOGateway.STATE_CONNECTED:
                             //mBtnSend.setEnabled(true);
                             //mConnectionStatus.setText(getString(R.string.BT_status_connected_to) + " " + mConnectedDeviceName);
@@ -239,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //mConnectionStatus.setText(getString(R.string.BT_status_not_connected));
                             //mConnectionStatus.setBackgroundColor(Color.RED);
                             Toast.makeText(MainActivity.this, "Conexión fallida :(", Toast.LENGTH_SHORT).show();
+
                             break;
 
                         default:
@@ -291,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
 
                 case MESSAGE_TOAST:
-                    displayMessage(msg.getData().getString(TOAST));
+                    displayMessage(MainActivity.getAppContext(),msg.getData().getString(TOAST));
                     break;
 
                 case MESSAGE_DEVICE_NAME:
@@ -302,6 +310,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     };
+
+    private static Context context;
+    public static Context getAppContext() {
+        return context;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -367,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .setAction("Action", null).show();
             }
         });
-        fab.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.INVISIBLE);
 
         fab2 = (FloatingActionButton) findViewById(R.id.fab2);
 
@@ -451,10 +464,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (mBluetoothAdapter == null)
         {
             // Device does not support Bluetooth
-            displayMessage(NO_BLUETOOTH);
+            displayMessage(MainActivity.getAppContext(),NO_BLUETOOTH);
             displayLog(NO_BLUETOOTH);
 
-            MainActivity.this.finish();
+            //MainActivity.this.finish();
+            Toast.makeText(this, "Lo sentimos, tu telefono presenta fallas en el Bluetooth", Toast.LENGTH_SHORT).show();
         }
         // log
         displayLog("Bluetooth encontrado.");
@@ -465,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
     }
 
+    // Listener de la botonera (ir/favoritos) al seleccionar alguna gasolinera
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -476,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     mapIntent.setPackage("com.google.android.apps.maps");
                     startActivity(mapIntent);
-                    Toast.makeText(MainActivity.this, "Trazando ruta", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Trazando ruta...", Toast.LENGTH_SHORT).show();
                     return true;
                 case R.id.navigation_fuel_fav:
                     ref.child("Favorites").child(keyStationSelected).setValue(keyStationSelected);
@@ -623,6 +638,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /*
     @Override
     protected void onStart()
     {
@@ -648,6 +664,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setupMonitor();
         }
     }
+    */
 
     @Override
     protected void onResume()
@@ -695,18 +712,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        this.menu = menu;
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Comprobamos si el Bluetooth esta activo y cambiamos el texto del
+        updateMenuTitles();
+
         switch (item.getItemId())
         {
+            case R.id.action_on_bluetooth:
+                if (mBluetoothAdapter == null) {
+                    mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                }
+
+                // make sure Bluetooth is enabled
+                displayLog("Intente comprobar la disponibilidad...");
+                if (!mBluetoothAdapter.isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                }
+                else {
+                    displayLog("Bluetooth esta disponible");
+
+                    queryPairedDevices();
+                    setupMonitor();
+                }
+                return true;
+
+            case R.id.action_off_bluetooth:
+                mBluetoothAdapter.disable();
+                return true;
+
             case R.id.action_scan:
                 queryPairedDevices();
                 setupMonitor();
@@ -722,24 +766,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mMonitor.setText("");
                 return true;
 
-            case R.id.menu_toggle_obd_mode:
+            /*case R.id.menu_toggle_obd_mode:
                 inSimulatorMode = !inSimulatorMode;
                 if(inSimulatorMode)
                 {
-                    displayMessage("Modo simulador habilitado");
+                    displayMessage(MainActivity.getAppContext(),"Modo simulador habilitado");
                 }
                 else
                 {
-                    displayMessage("Modo simulador deshabilitado");
+                    displayMessage(MainActivity.getAppContext(),"Modo simulador deshabilitado");
                 }
                 return true;
 
             case R.id.menu_clear_code:
                 sendOBD2CMD("04");
-                return true;
+                return true;*/
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateMenuTitles() {
+        MenuItem bedMenuItem = menu.findItem(R.id.action_on_bluetooth);
+        if(mBluetoothAdapter.isEnabled()){
+            bedMenuItem.setTitle("Habilitar Bluetooth");
+        } else {
+            bedMenuItem.setTitle("Deshabilitar Bluetooth");
+        }
     }
 
     @Override
@@ -753,7 +805,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case REQUEST_ENABLE_BT:
                 if (resultCode == RESULT_CANCELED)
                 {
-                    displayMessage("Bluetooth no activado :(");
+                    //displayMessage(MainActivity.getAppContext(),"Bluetooth no activado :(");
+                    Toast.makeText(MainActivity.this, "Bluetooth no activado :(", Toast.LENGTH_SHORT).show();
                     displayLog("Bluetooth no activado :(");
                     return;
                 }
@@ -884,9 +937,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void displayMessage(String msg)
+    private static void displayMessage(Context context, String msg)
     {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void displayLog(String msg)
@@ -919,11 +972,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-    private void sendOBD2CMD(String sendMsg)
+    private static void sendOBD2CMD(String sendMsg)
     {
         if (mIOGateway.getState() != BluetoothIOGateway.STATE_CONNECTED)
         {
-            displayMessage("El dispositivo Bluetooth no está disponible");
+            displayMessage(MainActivity.getAppContext(), "El dispositivo Bluetooth no está disponible");
+            //Toast.makeText(MainActivity.this, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -938,7 +992,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if(inSimulatorMode)
         {
-            displayMessage("¡Estás en modo simulador!");
+            displayMessage(MainActivity.getAppContext(),"¡Estás en modo simulador!");
             return;
         }
 
@@ -957,13 +1011,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sendOBD2CMD(INIT_COMMANDS[mCMDPointer]);
     }
 
-    private void sendFuelTankCommands()
+    public static void sendFuelTankCommands()
     {
-        if(inSimulatorMode)
-        {
-            displayMessage("¡Estás en modo simulador!");
-            return;
-        }
+
 
         if (mCMDPointer >= INIT_COMMANDS.length)
         {
@@ -995,7 +1045,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mSbCmdResp.append("R>>");
                 mSbCmdResp.append(buffer);
                 mSbCmdResp.append( " (Tanque con: ");
-                mSbCmdResp.append(ft);
+                mSbCmdResp.append(String.format("%.2f", ft));
                 mSbCmdResp.append("Lts)");
                 mSbCmdResp.append("\n");
                 break;
@@ -1177,7 +1227,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent tutorial = new Intent(MainActivity.this, MenuHelpActivity.class);
             startActivity(tutorial);
         } else if (id == R.id.nav_settings) {
-
+            Intent tutorial = new Intent(MainActivity.this, MenuSettingsActivity.class);
+            startActivity(tutorial);
         } else if (id == R.id.nav_off) {
             mAuth.signOut();
             startActivity(new Intent(MainActivity.this, BannerActivity.class));
@@ -1233,6 +1284,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onKeyExited(String key) {
                         sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?",key));
                         fab.setVisibility(View.INVISIBLE);
+                        mCMDPointer = -1;
+                        sendFuelTankCommands();
                     }
 
                     @Override
