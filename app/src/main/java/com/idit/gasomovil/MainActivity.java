@@ -25,6 +25,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -156,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Menu menu;
 
+    private double ltsLaterCharge;
+    private double ltsAfterCharge;
 
     /*private RecyclerView recyclerView;
     private List<CommentModel> result_comment;
@@ -299,7 +302,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
 
                 case MESSAGE_TOAST:
-                    displayMessage(MainActivity.getAppContext(),msg.getData().getString(TOAST));
+//                    displayMessage(MainActivity.getAppContext(),msg.getData().getString(TOAST));
+                    Toast.makeText(MainActivity.this,msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
                     break;
 
                 case MESSAGE_DEVICE_NAME:
@@ -374,10 +378,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCMDPointer = -1;
-                sendFuelTankCommands();
-                Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (mBluetoothAdapter.isEnabled()) {
+                    mCMDPointer = -1;
+                    sendFuelTankCommands();
+                    Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+                else
+                    Toast.makeText(MainActivity.this, "No estas conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
             }
         });
         fab.setVisibility(View.INVISIBLE);
@@ -464,7 +472,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (mBluetoothAdapter == null)
         {
             // Device does not support Bluetooth
-            displayMessage(MainActivity.getAppContext(),NO_BLUETOOTH);
+            //displayMessage(MainActivity.getAppContext(),NO_BLUETOOTH);
+            Toast.makeText(MainActivity.this, NO_BLUETOOTH, Toast.LENGTH_SHORT).show();
             displayLog(NO_BLUETOOTH);
 
             //MainActivity.this.finish();
@@ -937,10 +946,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private static void displayMessage(Context context, String msg)
+    /*private static void displayMessage(Context context, String msg)
     {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    }
+    }*/
 
     private void displayLog(String msg)
     {
@@ -972,11 +981,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-    private static void sendOBD2CMD(String sendMsg)
+    private void sendOBD2CMD(String sendMsg)
     {
         if (mIOGateway.getState() != BluetoothIOGateway.STATE_CONNECTED)
         {
-            displayMessage(MainActivity.getAppContext(), "El dispositivo Bluetooth no está disponible");
+            Toast.makeText(context, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
+            //displayMessage(MainActivity.getAppContext(), "El dispositivo Bluetooth no está disponible");
             //Toast.makeText(MainActivity.this, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -992,7 +1002,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if(inSimulatorMode)
         {
-            displayMessage(MainActivity.getAppContext(),"¡Estás en modo simulador!");
+            Toast.makeText(MainActivity.this, "¡Estás en modo simulador!", Toast.LENGTH_SHORT).show();
+            //displayMessage(MainActivity.getAppContext(),"¡Estás en modo simulador!");
             return;
         }
 
@@ -1011,7 +1022,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sendOBD2CMD(INIT_COMMANDS[mCMDPointer]);
     }
 
-    public static void sendFuelTankCommands()
+    public void sendFuelTankCommands()
     {
 
 
@@ -1042,12 +1053,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case 1: // CMD: 012F fuel tank
                 double ft = showLitersFuelTank(buffer);
-                mSbCmdResp.append("R>>");
-                mSbCmdResp.append(buffer);
-                mSbCmdResp.append( " (Tanque con: ");
-                mSbCmdResp.append(String.format("%.2f", ft));
-                mSbCmdResp.append("Lts)");
-                mSbCmdResp.append("\n");
+                if (ft > 1) {
+                    mSbCmdResp.append("R>>");
+                    mSbCmdResp.append(buffer);
+                    mSbCmdResp.append(" (Tanque con: ");
+                    mSbCmdResp.append(String.format("%.2f", ft));
+                    mSbCmdResp.append("Lts)");
+                    mSbCmdResp.append("\n");
+                }
+                else{
+                    mSbCmdResp.append("Calculando...");
+                    mSbCmdResp.append("\n");
+                }
+
+                if (ft < 19)
+                    ltsLaterCharge = ft;
+                else
+                    ltsAfterCharge = ft;
+
                 break;
 
             default:
@@ -1267,12 +1290,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 mMap.addCircle(new CircleOptions()
                         .center(fuel_station_area)
-                        .radius(15) //in metters => 15m
+                        .radius(20) //in metters => 15m
                         .strokeColor(rankingColor(model.score))
                         .fillColor(0x220000FF)
                         .strokeWidth(5.0f));
 
-                GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(fuel_station_area.latitude, fuel_station_area.longitude), 0.015f);
+                GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(fuel_station_area.latitude, fuel_station_area.longitude), 0.020f);
                 geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                     @Override
                     public void onKeyEntered(String key, GeoLocation location) {
@@ -1284,8 +1307,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onKeyExited(String key) {
                         sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?",key));
                         fab.setVisibility(View.INVISIBLE);
-                        mCMDPointer = -1;
-                        sendFuelTankCommands();
+                        if (mBluetoothAdapter.isEnabled()) {
+                            mCMDPointer = -1;
+                            sendFuelTankCommands();
+                        }
+                        //Initializing a bottom sheet
+                        BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
+                        //show it
+                        bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+
+                        @SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
+
+                        TextView txtCharge = findViewById(R.id.textCharge);
+                        //bottomSheetDialogFragment.getContext(R.id.textCharge);
+                        //TextView txtCharge = v.findViewById(R.id.textCharge);
+                        txtCharge.setText("23 Lts");
+
                     }
 
                     @Override

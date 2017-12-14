@@ -10,7 +10,7 @@ import android.widget.Button;
 
 import com.idit.gasomovil.R;
 
-import static com.idit.gasomovil.MainActivity.sendFuelTankCommands;
+//import com.idit.gasomovil.MainActivity.sendFuelTankCommands;
 
 public class MenuSettingsActivity extends AppCompatActivity {
 
@@ -29,7 +29,7 @@ public class MenuSettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //mCMDPointer = -1;
-                sendFuelTankCommands();
+                //sendFuelTankCommands();
             }
         });
 
