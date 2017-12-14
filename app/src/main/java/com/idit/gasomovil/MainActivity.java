@@ -1512,7 +1512,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void sendNotification(String title, String content) {
         Notification.Builder builder = new Notification.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(title)
                 .setContentText(content);
 
