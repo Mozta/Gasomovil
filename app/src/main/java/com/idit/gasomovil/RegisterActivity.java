@@ -469,5 +469,12 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         }
 
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        finish();
+        return false;
+    }
 }
 
