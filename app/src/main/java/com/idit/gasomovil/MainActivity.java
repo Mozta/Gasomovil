@@ -107,6 +107,16 @@ import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Esta clase es la principal de la aplicación, en ella se encuentran todos los metodos necesarios
+ * para el correcto funcionamiento de la misma, la cual incluye: la validación del inicio de sesión,
+ * las consultas pertinentes a la base de datos y la integración en tiempo real a la nube, las
+ * configuraciones necesarias para establecer la comunicación Bluetooth, los metodos que utiliza el
+ * GPS para su funcionamiento asi como la integración con Geofire para poder enlazarlo con Firebase
+ * y todos las demas instancias para dibujar la interfaz y la comunicación con las demás pantallas
+ * de la aplicación.
+ */
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
