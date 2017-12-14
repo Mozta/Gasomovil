@@ -11,6 +11,13 @@ import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 /**
  * Created by viper on 12/12/2017.
  */
@@ -18,10 +25,18 @@ import android.widget.TextView;
 public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private TextView textChargue;
 
+    DatabaseReference ref;
+    String userID;
+    double ltsCharged;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("average_lts");
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -52,7 +67,18 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
         }
 
         textChargue = contentView.findViewById(R.id.textCharge);
-        textChargue.setText("Litros despachados: ");
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                textChargue.setText("Litros despachados: "+ dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 }

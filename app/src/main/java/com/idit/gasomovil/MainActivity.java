@@ -98,6 +98,7 @@ import com.idit.gasomovil.menu.MenuHistoryActivity;
 import com.idit.gasomovil.menu.MenuPerfilActivity;
 import com.idit.gasomovil.menu.MenuSettingsActivity;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -157,8 +158,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Menu menu;
 
+    private boolean isLaterCharge = false;
     private double ltsLaterCharge;
-    private double ltsAfterCharge;
+    //private double[] ltsAfterCharge;
+    ArrayList<Double> ltsAfterCharge = new ArrayList<Double>();
+    private double averageLts;
 
     /*private RecyclerView recyclerView;
     private List<CommentModel> result_comment;
@@ -379,7 +383,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 if (mBluetoothAdapter.isEnabled()) {
-                    mCMDPointer = -1;
+                    isLaterCharge = true;
+                    mCMDPointer = 1;
                     sendFuelTankCommands();
                     Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -1066,10 +1071,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mSbCmdResp.append("\n");
                 }
 
-                if (ft < 19)
-                    ltsLaterCharge = ft;
+
+                if (isLaterCharge)
+                    ltsLaterCharge = decimalFormat(ft);
                 else
-                    ltsAfterCharge = ft;
+                    ltsAfterCharge.add(decimalFormat(ft));
 
                 break;
 
@@ -1086,6 +1092,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mCMDPointer++;
             sendDefaultCommands();
         }
+    }
+
+    private double decimalFormat(double x){
+        DecimalFormat df = new DecimalFormat(".##");
+        return Double.parseDouble(df.format(x));
     }
 
     private String cleanResponse(String text)
@@ -1305,23 +1316,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     @Override
                     public void onKeyExited(String key) {
+                        averageLts = 0;
                         sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?",key));
                         fab.setVisibility(View.INVISIBLE);
                         if (mBluetoothAdapter.isEnabled()) {
-                            mCMDPointer = -1;
-                            sendFuelTankCommands();
+                            for (int i=0; i<5; i++){
+                                mCMDPointer = 1;
+                                sendFuelTankCommands();
+                                averageLts += ltsAfterCharge.get(i);
+                            }
+                            averageLts = averageLts/ltsAfterCharge.size();
+
+                            ref.child("average_lts").setValue(averageLts);
                         }
+
+
                         //Initializing a bottom sheet
                         BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
                         //show it
                         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
 
-                        @SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
+                        //@SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
 
-                        TextView txtCharge = findViewById(R.id.textCharge);
+                        //TextView txtCharge = findViewById(R.id.textCharge);
                         //bottomSheetDialogFragment.getContext(R.id.textCharge);
                         //TextView txtCharge = v.findViewById(R.id.textCharge);
-                        txtCharge.setText("23 Lts");
+                        //txtCharge.setText("23 Lts");
 
                     }
 
