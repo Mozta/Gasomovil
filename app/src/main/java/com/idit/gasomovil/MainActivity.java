@@ -392,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mBluetoothAdapter.isEnabled()) {
+                /*if (mBluetoothAdapter.isEnabled()) {
                     isLaterCharge = true;
                     mCMDPointer = 1;
                     sendFuelTankCommands();
@@ -401,6 +401,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 else
                     Toast.makeText(MainActivity.this, "No estas conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
+                */
+                Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
         fab.setVisibility(View.INVISIBLE);
@@ -474,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         /* ============ ELM327 =========== */
         // log
-        displayLog("=>\n***************\n     ELM 327 started\n***************");
+        /*displayLog("=>\n***************\n     ELM 327 started\n***************");
 
         // connect widgets
         mMonitor = (TextView) findViewById(R.id.tvMonitor);
@@ -501,6 +504,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mSbCmdResp = new StringBuilder();
         mPartialResponse = new StringBuilder();
         mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
+        */
     }
 
     // Listener de la botonera (ir/favoritos) al seleccionar alguna gasolinera
@@ -1295,7 +1299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ref_fuel_station.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                StationModel model = dataSnapshot.getValue(StationModel.class);
+                final StationModel model = dataSnapshot.getValue(StationModel.class);
                 model.setKey(dataSnapshot.getKey());
 
                 result.add(model);
@@ -1329,7 +1333,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         averageLts = 0;
                         sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?",key));
                         fab.setVisibility(View.INVISIBLE);
-                        if (mBluetoothAdapter.isEnabled()) {
+                        /*if (mBluetoothAdapter.isEnabled()) {
                             for (int i=0; i<5; i++){
                                 mCMDPointer = 1;
                                 sendFuelTankCommands();
@@ -1338,7 +1342,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             averageLts = averageLts/ltsAfterCharge.size();
 
                             ref.child("average_lts").setValue(averageLts);
-                        }
+                        }*/
+                        String my_key = ref.push().getKey();
+                        ref.child("Historial").child(my_key).child("name").setValue(model.name);
+                        ref.child("Historial").child(my_key).child("liters").setValue(45);
+                        ref.child("Historial").child(my_key).child("price").setValue(372.5);
+                        ref.child("Historial").child(my_key).child("score").setValue(4);
+                        ref.child("Historial").child(my_key).child("timestamp").setValue(1512668702);
+                        //ref = FirebaseDatabase.getInstance().getReference("User").child(userID);
+
 
 
                         //Initializing a bottom sheet
