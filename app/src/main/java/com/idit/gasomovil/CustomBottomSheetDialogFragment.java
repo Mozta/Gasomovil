@@ -13,12 +13,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 /**
@@ -103,7 +105,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
                         ref.child(my_key).child("price").setValue(amount * 25);
                         ref.child(my_key).child("score").setValue(myRatingBar_qualify_station.getRating());
-                        ref.child(my_key).child("timestamp").setValue(1518106699);
+                        ref.child(my_key).child("timestamp").setValue(System.currentTimeMillis()/1000);
                     }
 
                     @Override
@@ -115,13 +117,13 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 //Save comment in stations
                 ref_fuel_station.child(userID).child("comment").setValue(txtComment.getText().toString());
                 ref_fuel_station.child(userID).child("score").setValue(myRatingBar_qualify_station.getRating());
-                ref_fuel_station.child(userID).child("timestamp").setValue(1518106699);
+                ref_fuel_station.child(userID).child("timestamp").setValue(System.currentTimeMillis()/1000);
 
                 //Save service in statins
                 String serviceID = ref_fuel_station_service.push().getKey();
                 ref_fuel_station_service.child(serviceID).child("liters").setValue(25);
                 ref_fuel_station_service.child(serviceID).child("price").setValue(amount * 25);
-                ref_fuel_station_service.child(serviceID).child("timestamp").setValue(1518106699);
+                ref_fuel_station_service.child(serviceID).child("timestamp").setValue(System.currentTimeMillis()/1000);
 
                 dismiss();
             }
