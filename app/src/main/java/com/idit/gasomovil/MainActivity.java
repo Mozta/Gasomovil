@@ -505,6 +505,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mPartialResponse = new StringBuilder();
         mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
         */
+
+
+
     }
 
     // Listener de la botonera (ir/favoritos) al seleccionar alguna gasolinera
@@ -1344,22 +1347,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             ref.child("average_lts").setValue(averageLts);
                         }*/
                         String my_key = ref.push().getKey();
-                        ref.child("Historial").child(my_key).child("name").setValue(model.name);
+                        /*ref.child("Historial").child(my_key).child("name").setValue(model.name);
                         ref.child("Historial").child(my_key).child("liters").setValue(45);
                         ref.child("Historial").child(my_key).child("price").setValue(372.5);
                         ref.child("Historial").child(my_key).child("score").setValue(4);
                         ref.child("Historial").child(my_key).child("timestamp").setValue(1512668702);
+                        */
                         //ref = FirebaseDatabase.getInstance().getReference("User").child(userID);
+
+
+
+                        // Creamos un nuevo Bundle
+                        Bundle args = new Bundle();
+                        // Colocamos el String
+                        args.putString("name_station", model.name);
+                        args.putString("my_key", my_key);
 
 
 
                         //Initializing a bottom sheet
                         BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
+
+                        bottomSheetDialogFragment.setArguments(args);
                         //show it
                         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
 
+
                         //@SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
 
+                        /*Button btnSaveChargue = bottomSheetDialogFragment.getView().findViewById(R.id.save_comment);
+                        btnSaveChargue.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Toast.makeText(MainActivity.this, "Siiiii", Toast.LENGTH_SHORT).show();
+                            }
+                        });*/
                         //TextView txtCharge = findViewById(R.id.textCharge);
                         //bottomSheetDialogFragment.getContext(R.id.textCharge);
                         //TextView txtCharge = v.findViewById(R.id.textCharge);

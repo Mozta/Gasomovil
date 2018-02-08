@@ -9,6 +9,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +30,9 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
     String userID;
     double ltsCharged;
 
+    String my_key;
+    String name_station;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,7 +40,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("average_lts");
+        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("Historial");
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -66,17 +70,21 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
         }
 
+        name_station = getArguments().getString("name_station");
+        my_key = getArguments().getString("my_key");
+
         textChargue = contentView.findViewById(R.id.textCharge);
+        textChargue.setText("Litros despachados: 35");
 
-        ref.addValueEventListener(new ValueEventListener() {
+        Button btnSaveCharge = (Button)contentView.findViewById(R.id.save_comment);
+        btnSaveCharge.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                textChargue.setText("Litros despachados: "+ dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onClick(View view) {
+                ref.child(my_key).child("name").setValue(name_station);
+                ref.child(my_key).child("liters").setValue(25);
+                ref.child(my_key).child("price").setValue(827);
+                ref.child(my_key).child("score").setValue(5);
+                ref.child(my_key).child("timestamp").setValue(1512668702);
             }
         });
 
