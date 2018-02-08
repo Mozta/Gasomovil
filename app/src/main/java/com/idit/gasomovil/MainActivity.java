@@ -1372,6 +1372,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //show it
                         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
 
+                        bottomSheetDialogFragment.setCancelable(false);
+
 
                         //@SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
 

@@ -10,6 +10,8 @@ import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,8 +27,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private TextView textChargue;
+    private RatingBar myRatingBar_qualify_station;
+    private EditText txtComment;
 
-    DatabaseReference ref;
+    private double amount;
+
+    DatabaseReference ref, ref_fuel_station, ref_fuel_station_price, ref_fuel_station_service;
     String userID;
     double ltsCharged;
 
@@ -41,6 +47,9 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("Historial");
+        ref_fuel_station = FirebaseDatabase.getInstance().getReference("Stations/123456a/Comments");
+        ref_fuel_station_service = FirebaseDatabase.getInstance().getReference("Stations/123456a/Services");
+        ref_fuel_station_price = FirebaseDatabase.getInstance().getReference("Stations/123456a/Prices");
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -74,17 +83,47 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
         my_key = getArguments().getString("my_key");
 
         textChargue = contentView.findViewById(R.id.textCharge);
-        textChargue.setText("Litros despachados: 35");
+        textChargue.setText("Litros suministrados: 35");
+
+        myRatingBar_qualify_station = contentView.findViewById(R.id.myRatingBar_qualify_station);
+        txtComment = contentView.findViewById(R.id.write_comment);
 
         Button btnSaveCharge = (Button)contentView.findViewById(R.id.save_comment);
         btnSaveCharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Save historial user
                 ref.child(my_key).child("name").setValue(name_station);
                 ref.child(my_key).child("liters").setValue(25);
-                ref.child(my_key).child("price").setValue(827);
-                ref.child(my_key).child("score").setValue(5);
-                ref.child(my_key).child("timestamp").setValue(1512668702);
+
+                ref_fuel_station_price.child("magna").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        amount = (double) dataSnapshot.getValue();
+
+                        ref.child(my_key).child("price").setValue(amount * 25);
+                        ref.child(my_key).child("score").setValue(myRatingBar_qualify_station.getRating());
+                        ref.child(my_key).child("timestamp").setValue(1518106699);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                //Save comment in stations
+                ref_fuel_station.child(userID).child("comment").setValue(txtComment.getText().toString());
+                ref_fuel_station.child(userID).child("score").setValue(myRatingBar_qualify_station.getRating());
+                ref_fuel_station.child(userID).child("timestamp").setValue(1518106699);
+
+                //Save service in statins
+                String serviceID = ref_fuel_station_service.push().getKey();
+                ref_fuel_station_service.child(serviceID).child("liters").setValue(25);
+                ref_fuel_station_service.child(serviceID).child("price").setValue(amount * 25);
+                ref_fuel_station_service.child(serviceID).child("timestamp").setValue(1518106699);
+
+                dismiss();
             }
         });
 

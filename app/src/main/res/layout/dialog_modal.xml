@@ -40,11 +40,15 @@
     <TextView
         android:id="@+id/textCharge"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Litros suministrados: "
+        android:textAlignment="center"
+        android:textSize="18sp"/>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:theme="@style/AppTheme.light">
 
         <android.support.design.widget.TextInputEditText
@@ -52,23 +56,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Deja un comentario"
-            android:textColor="@android:color/black"
-            android:inputType="textCapWords|textPersonName"
+            android:inputType="textCapSentences|textPersonName"
+            android:imeOptions="actionDone"
             android:maxLines="1"
-            android:singleLine="true" />
-
-        <Button
-            android:id="@+id/save_comment"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="40dp"
-            android:layout_marginTop="18dp"
-            android:backgroundTint="@color/colorAccent"
-            android:text="GUARDAR"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold" />
+            android:singleLine="true"
+            android:textColor="@android:color/black" />
     </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/save_comment"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="18dp"
+        android:backgroundTint="@color/colorAccent"
+        android:text="GUARDAR"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold" />
 
 
 
