@@ -36,6 +36,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     DatabaseReference ref, ref_fuel_station, ref_fuel_station_price, ref_fuel_station_service;
     String userID;
+    String serviceID;
     double ltsCharged;
 
     String my_key;
@@ -48,10 +49,28 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        //References to database
         ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("Historial");
         ref_fuel_station = FirebaseDatabase.getInstance().getReference("Stations/123456a/Comments");
         ref_fuel_station_service = FirebaseDatabase.getInstance().getReference("Stations/123456a/Services");
         ref_fuel_station_price = FirebaseDatabase.getInstance().getReference("Stations/123456a/Prices");
+
+        //Save service in stations
+        serviceID = ref_fuel_station_service.push().getKey();
+        ref_fuel_station_service.child(serviceID).child("liters").setValue(25);
+        ref_fuel_station_price.child("magna").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                double price_fuel = (double) dataSnapshot.getValue();
+                ref_fuel_station_service.child(serviceID).child("price").setValue(price_fuel * 25);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        ref_fuel_station_service.child(serviceID).child("timestamp").setValue(System.currentTimeMillis()/1000);
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -118,12 +137,6 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 ref_fuel_station.child(userID).child("comment").setValue(txtComment.getText().toString());
                 ref_fuel_station.child(userID).child("score").setValue(myRatingBar_qualify_station.getRating());
                 ref_fuel_station.child(userID).child("timestamp").setValue(System.currentTimeMillis()/1000);
-
-                //Save service in statins
-                String serviceID = ref_fuel_station_service.push().getKey();
-                ref_fuel_station_service.child(serviceID).child("liters").setValue(25);
-                ref_fuel_station_service.child(serviceID).child("price").setValue(amount * 25);
-                ref_fuel_station_service.child(serviceID).child("timestamp").setValue(System.currentTimeMillis()/1000);
 
                 dismiss();
             }
