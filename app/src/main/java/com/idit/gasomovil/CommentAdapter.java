@@ -34,7 +34,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         CommentModel commentModel = list.get(position);
 
-        holder.textName.setText(commentModel.key);
+        //holder.textName.setText(commentModel.key);
         holder.textComment.setText(commentModel.comment);
     }
 
@@ -46,12 +46,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     class CommentViewHolder extends RecyclerView.ViewHolder{
 
         TextView textName, textComment;
-        RatingBar textScore;
+        //RatingBar textScore;
 
         public CommentViewHolder(View itemView) {
             super(itemView);
 
-            textName = itemView.findViewById(R.id.comment_username);
+            //textName = itemView.findViewById(R.id.comment_username);
             textComment = itemView.findViewById(R.id.comment);
         }
     }

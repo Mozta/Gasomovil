@@ -11,7 +11,7 @@ public class FavoriteModel {
     //Float premium;
     //Float magna;
     //Float diesel;
-    Map<String, Object> prices;
+    Map<String, Object> Prices;
     int score;
     public String key;
 
@@ -19,9 +19,9 @@ public class FavoriteModel {
 
     }
 
-    public FavoriteModel(String name, Map<String, Object> prices, int score, String key) {
+    public FavoriteModel(String name, Map<String, Object> Prices, int score, String key) {
         this.name = name;
-        this.prices = prices;
+        this.Prices = Prices;
         this.score = score;
         this.key = key;
     }

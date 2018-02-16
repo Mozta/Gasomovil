@@ -86,6 +86,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.Adapter.PairedListAdapter;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
 import com.idit.gasomovil.Dialog.PairedDevicesDialog;
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static int DISPLACEMENT = 10;
 
     DatabaseReference ref, ref_fuel_station;
+    DatabaseReference mDatabase_comments;
     GeoFire geoFire;
 
     String userID;
@@ -174,10 +176,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ArrayList<Double> ltsAfterCharge = new ArrayList<Double>();
     private double averageLts;
 
-    /*private RecyclerView recyclerView;
-    private List<CommentModel> result_comment;
-    private CommentAdapter;
-    private TextView emptyComment;*/
+    private RecyclerView recyclerView;
+    private List<CommentModel> resultComment;
+    private CommentAdapter adapterComment;
+    private TextView emptyText;
+
 
     /* ========== ELM327 ============= */
     //private static final String TAG = MainActivity.class.getSimpleName();
@@ -505,8 +508,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mPartialResponse = new StringBuilder();
         mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
         */
-
-
 
     }
 
@@ -1484,12 +1485,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 int i = Integer.parseInt(marker.getId().substring(1));
 
                 name_station.setText(result.get(i).name);
-                premium_station.setText(result.get(i).prices.get("premium").toString());
-                magna_station.setText(result.get(i).prices.get("magna").toString());
-                diesel_station.setText(result.get(i).prices.get("diesel").toString());
+                premium_station.setText(result.get(i).Prices.get("premium").toString());
+                magna_station.setText(result.get(i).Prices.get("magna").toString());
+                diesel_station.setText(result.get(i).Prices.get("diesel").toString());
                 ranking_station.setRating(result.get(i).score);
                 address_station.setText(result.get(i).address);
                 phone_station.setText(result.get(i).phone);
+
+                //Comments
+                ref_fuel_station.child(result.get(i).key).child("Probando").setValue("esneta");
+
+                emptyText = findViewById(R.id.text_no_comment);
+                resultComment = new ArrayList<>();
+
+                recyclerView = findViewById(R.id.comment_list);
+                recyclerView.setHasFixedSize(true);
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(MainActivity.this);
+                linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+                recyclerView.setLayoutManager(linearLayoutManager);
+
+                adapterComment = new CommentAdapter(resultComment);
+                recyclerView.setAdapter(adapterComment);
+
+
 
                 behavior.setAnchorColor(rankingColor(result.get(i).score));
 
@@ -1497,6 +1516,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 keyStationSelected = result.get(i).key;
                 latitudeSelected = result.get(i).latitude;
                 longitudeSelected = result.get(i).longitude;
+
+                updateList();
+
+                checkIfEmpty();
+
+                Toast.makeText(MainActivity.this, keyStationSelected, Toast.LENGTH_SHORT).show();
 
                 BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation2);
                 navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -1513,6 +1538,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
+
+    private void updateList(){
+        ref_fuel_station.child(keyStationSelected).child("Comments").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                CommentModel model = dataSnapshot.getValue(CommentModel.class);
+                model.setKey(dataSnapshot.getKey());
+
+                resultComment.add(model);
+                adapterComment.notifyDataSetChanged();
+
+                checkIfEmpty();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                CommentModel model = dataSnapshot.getValue(CommentModel.class);
+                model.setKey(dataSnapshot.getKey());
+
+                int index = getItemIndexComment(model);
+                resultComment.set(index, model);
+                adapterComment.notifyItemChanged(index);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                CommentModel model = dataSnapshot.getValue(CommentModel.class);
+                model.setKey(dataSnapshot.getKey());
+
+                int index = getItemIndexComment(model);
+                resultComment.remove(index);
+                adapterComment.notifyItemRemoved(index);
+
+                checkIfEmpty();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private int getItemIndexComment(CommentModel model) {
+        int index = -1;
+
+        for (int i=0; i < resultComment.size(); i++){
+            if (resultComment.get(i).key.equals(model.key)) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
+    private void checkIfEmpty(){
+        if (resultComment.size() == 0){
+            recyclerView.setVisibility(View.INVISIBLE);
+            emptyText.setVisibility(View.VISIBLE);
+        } else{
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.INVISIBLE);
+        }
+    }
+
 
     private int rankingColor(Float score) {
         if (score < 2)

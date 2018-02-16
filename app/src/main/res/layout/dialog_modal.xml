@@ -9,12 +9,29 @@
     android:paddingBottom="24dp"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        app:srcCompat="@drawable/ic_account_circle_header" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            app:srcCompat="@drawable/ic_account_circle_header" />
+
+        <ImageButton
+            android:id="@+id/share_charge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:backgroundTint="@color/colorAccent"
+            android:background="@drawable/ic_share"/>
+    </RelativeLayout>
+
 
     <TextView
         android:layout_width="match_parent"

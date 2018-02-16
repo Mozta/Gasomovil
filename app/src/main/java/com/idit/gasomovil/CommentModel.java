@@ -6,15 +6,17 @@ package com.idit.gasomovil;
 
 public class CommentModel {
     String comment;
-    //float score;
+    double score;
+    int timestamp;
     public String key;
 
     public CommentModel() {
     }
 
-    public CommentModel(String comment, String key) {
+    public CommentModel(String comment, double score, int timestamp, String key) {
         this.comment = comment;
-        //this.score = score;
+        this.score = score;
+        this.timestamp = timestamp;
         this.key = key;
     }
 

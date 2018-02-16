@@ -35,9 +35,9 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
         FavoriteModel favorite = list.get(position);
 
         holder.textName.setText(favorite.name);
-        holder.textPremium.setText(favorite.prices.get("premium").toString());
-        holder.textMagna.setText(favorite.prices.get("magna").toString());
-        holder.textDiesel.setText(favorite.prices.get("diesel").toString());
+        holder.textPremium.setText(favorite.Prices.get("premium").toString());
+        holder.textMagna.setText(favorite.Prices.get("magna").toString());
+        holder.textDiesel.setText(favorite.Prices.get("diesel").toString());
         holder.textScore.setRating(favorite.score);
 
         holder.itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
