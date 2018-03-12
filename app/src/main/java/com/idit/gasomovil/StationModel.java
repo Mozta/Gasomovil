@@ -15,12 +15,15 @@ public class StationModel {
     String phone;
     Map<String, Object> Comments;
     Map<String, Object> Prices;
+    String image_url;
     public String key;
 
     public StationModel() {
     }
 
-    public StationModel(Float latitude, Float longitude, String name, String address, Float score, String phone, Map<String, Object> Comments, Map<String, Object> Prices, String key) {
+    public StationModel(Float latitude, Float longitude, String name, String address, Float score,
+                        String phone, Map<String, Object> Comments, Map<String, Object> Prices,
+                        String image_url, String key) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
@@ -29,6 +32,7 @@ public class StationModel {
         this.phone = phone;
         this.Comments = Comments;
         this.Prices = Prices;
+        this.image_url = image_url;
         this.key = key;
     }
 

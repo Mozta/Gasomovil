@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -206,7 +207,7 @@ public class GoogleMapsBottomSheetBehavior<V extends View> extends CoordinatorLa
 
     private View contentLayout;
 
-    private View parallax;
+    private ImageView parallax;
 
     private final List<View> anchoredViews = new ArrayList<>();
     private GoogleMap map;
@@ -733,7 +734,7 @@ public class GoogleMapsBottomSheetBehavior<V extends View> extends CoordinatorLa
         return mSkipCollapsed;
     }
 
-    public void setParallax(View view) {
+    public void setParallax(ImageView view) {
         parallax = view;
         parallax.setVisibility(View.INVISIBLE);
     }

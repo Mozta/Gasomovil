@@ -461,8 +461,8 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
         private HashMap tohashmap(){
             HashMap<String, String> user = new HashMap();
-            user.put("nombre", mName);
-            user.put("apellido",mLastName);
+            user.put("name", mName);
+            user.put("last_name",mLastName);
             user.put("email", mEmail);
             user.put("serie", mSerie);
             return  user;

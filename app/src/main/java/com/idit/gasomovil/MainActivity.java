@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -54,14 +55,17 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -70,6 +74,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -158,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     BottomInfoFragment mBottomInfo;
 
     private GoogleMapsBottomSheetBehavior behavior;
-    private View parallax;
+    private ImageView parallax;
 
     private List<StationModel> result;
 
@@ -1311,7 +1316,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 //checkIfEmpty();
                 //Create fuel Station area
-                LatLng fuel_station_area = new LatLng(model.longitude,model.latitude);
+                LatLng fuel_station_area = new LatLng(model.latitude, model.longitude);
                 mMap.addMarker(new MarkerOptions()
                         .position(fuel_station_area)
                         .icon(vectorToBitmap(rankingIcon(model.score)))
@@ -1374,6 +1379,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
 
                         bottomSheetDialogFragment.setCancelable(false);
+
+
 
 
                         //@SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
@@ -1512,6 +1519,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 behavior.setAnchorColor(rankingColor(result.get(i).score));
 
+
+
                 //Guardamos el id de la gasolinera seleccionada por si el usuario la agrega a favoritos
                 keyStationSelected = result.get(i).key;
                 latitudeSelected = result.get(i).latitude;
@@ -1527,6 +1536,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+
+                //Image of fuel station
+                // Load the image using Glide
+                Glide.with(parallax.getContext())
+                        .load(result.get(i).image_url)
+                        .placeholder(R.drawable.fuel_station_1)
+                        .error(R.drawable.fuel_station_1)
+                        .into(parallax);
+
+//                behavior.setParallax(parallax);
                 return true;
             }
         });

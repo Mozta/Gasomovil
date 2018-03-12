@@ -58,6 +58,7 @@
 
     <ImageView
         android:id="@+id/parallax"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         app:srcCompat="@drawable/fuel_station_1"

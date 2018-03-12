@@ -1,35 +1,27 @@
 {
   "project_info": {
-    "project_number": "1046716939828",
-    "firebase_url": "https://appgasomovil.firebaseio.com",
-    "project_id": "appgasomovil",
-    "storage_bucket": "appgasomovil.appspot.com"
+    "project_number": "8184245258",
+    "firebase_url": "https://gasomovil-a4419.firebaseio.com",
+    "project_id": "gasomovil-a4419",
+    "storage_bucket": "gasomovil-a4419.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1046716939828:android:654fc78463d6c9f2",
+        "mobilesdk_app_id": "1:8184245258:android:654fc78463d6c9f2",
         "android_client_info": {
           "package_name": "com.idit.gasomovil"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1046716939828-ejdn9uvipde6tsfssut2gaphi2vv371k.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.idit.gasomovil",
-            "certificate_hash": "f90f3310c8aa0669c257bebd7b7f25e95a712b2f"
-          }
-        },
-        {
-          "client_id": "1046716939828-cidk8pbni4kgqpou9kqufvvhondm7rh1.apps.googleusercontent.com",
+          "client_id": "8184245258-gsg6p24ll5ohmehmcha8ggevvmiv1gg5.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDfNbyenBFXBnwBty9Hkun_Q4W-9kXHMY4"
+          "current_key": "AIzaSyAZts-wG0OIlrhIdCYl4MpDBoH0680T5tA"
         }
       ],
       "services": {
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1046716939828-cidk8pbni4kgqpou9kqufvvhondm7rh1.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2
