@@ -29,6 +29,7 @@
             android:foreground="?attr/selectableItemBackground"
             android:clickable="true"
             android:backgroundTint="@color/colorAccent"
+            android:actionProviderClass="android.widget.ShareActionProvider"
             android:background="@drawable/ic_share"/>
     </RelativeLayout>
 

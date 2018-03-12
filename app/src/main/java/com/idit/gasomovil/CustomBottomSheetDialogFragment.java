@@ -2,6 +2,7 @@ package com.idit.gasomovil;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,7 +12,9 @@ import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RatingBar;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +34,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private TextView textChargue;
     private RatingBar myRatingBar_qualify_station;
     private EditText txtComment;
+    private ImageButton share_charge;
 
     private double amount;
 
@@ -99,6 +103,19 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
         if (behavior != null && behavior instanceof BottomSheetBehavior) {
             ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
         }
+
+        share_charge = (ImageButton)contentView.findViewById(R.id.share_charge);
+        share_charge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "GASOMOVIL");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "Acabo de cargar gasolina en: " + name_station + " y la califique con: "+myRatingBar_qualify_station.getRating()+" estrellas");
+                shareIntent.setType("text/plain");
+                startActivity(shareIntent);
+            }
+        });
 
         name_station = getArguments().getString("name_station");
         my_key = getArguments().getString("my_key");
