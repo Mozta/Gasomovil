@@ -321,8 +321,11 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+
+            //Imagen default al crear perfil
             uriImage = "android.resource://com.idit.gasomovil/drawable/usuario";
             usuario = new Usuario(name, lastName, email, password, passwordConfirm, serie, uriImage);
+
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -334,21 +337,23 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                                 myRef = database.getReference("User").child(user.getUid());
 
+                                //Conversion de imagen para poder subir a firebase
                                 Uri uri = Uri.parse(uriImage);
+                                //Generacion de espacio en la base de datos de firebase
                                 StorageReference ref = storageReference.child("profileImages/"+UUID.randomUUID().toString());
-                                Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.fuel_station_1);
-
+                                //Se coloca la imagen en el espacio creado previamemte
                                 ref.putFile(uri)
                                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                Toast.makeText(RegisterActivity.this, "SUBI", Toast.LENGTH_SHORT).show();
+                                                //Despues de subir se obtiene el enlace de descarga,
+                                                // el cual sera almacenado en el campo profile_image del usuario
                                                 usuario.mProfile_image = taskSnapshot.getDownloadUrl().toString();
-
+                                                //Se mapean los datos al modelo usuario y se suben
                                                 Map<String, String> values = new HashMap<>(usuario.tohashmap());
                                                 myRef.setValue(values);
-                                                //user.updateProfile(new UserProfileChangeRequest())
-
+                                                //Se actualiza el perfil de usuario para enlazar la
+                                                // imagen subida a la BD con la imagen de perfil de firebase user
                                                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                         .setPhotoUri(Uri.parse(taskSnapshot.getDownloadUrl().toString()))
                                                         .build();
@@ -367,7 +372,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                Toast.makeText(RegisterActivity.this, "FRACASo", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(RegisterActivity.this, "No se pudo asignar la imagen default", Toast.LENGTH_SHORT).show();
                                             }
                                         })
                                         .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -378,7 +383,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                         });
 
                                 showProgress(false);
-                                // Creamos usuario en base de datos y asignamos el tipo
+
 
                                 Toast.makeText(RegisterActivity.this, "Registro creado con exito",
                                         Toast.LENGTH_SHORT).show();
@@ -396,13 +401,6 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                     });
 
         }
-    }
-
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
     }
 
     private boolean isEmailValid(String email) {
