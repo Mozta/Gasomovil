@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Marker mCurrent;
 
     private TextView textUsername;
+    private ImageView imageView;
     private FloatingActionButton fab, fab2;
 
     //BottomInfo
@@ -434,6 +435,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View view = navigationView.getHeaderView(0);
         textUsername = (TextView) view.findViewById(R.id.nav_username);
         textUsername.setText(user.getEmail());
+        imageView = (ImageView)view.findViewById(R.id.imageView);
+
+        // Load the image using Glide
+        Glide.with(imageView.getContext())
+                .load(user.getPhotoUrl())
+                .placeholder(R.drawable.ic_account_circle_header)
+                .error(R.drawable.ic_account_circle_header)
+                .into(imageView);
 
         mapView = mapFragment.getView();
 

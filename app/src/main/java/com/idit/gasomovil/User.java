@@ -14,11 +14,12 @@ public class User {
     private String model;
     private int year;
     private String serie;
+    private String profile_image;
 
     public User(){
     }
 
-    public User(String name, String last_name, String email, String brand, String model, int year, String serie) {
+    public User(String name, String last_name, String email, String brand, String model, int year, String serie, String profile_image) {
         //this.uid = uid;
         this.name = name;
         this.last_name = last_name;
@@ -28,6 +29,8 @@ public class User {
         this.model = model;
         this.year = year;
         this.serie = serie;
+        this.profile_image = profile_image;
+
     }
 
     /*
@@ -101,5 +104,13 @@ public class User {
 
     public void setSerie(String serie) {
         this.serie = serie;
+    }
+
+    public String getProfile_image() {
+        return profile_image;
+    }
+
+    public void setProfile_image(String profile_image) {
+        this.profile_image = profile_image;
     }
 }

@@ -3,7 +3,12 @@ package com.idit.gasomovil;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -34,17 +39,26 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -77,6 +91,15 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private View mLoginFormView;
     private FirebaseAuth mAuth;
 
+    //Firebase
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+    private DatabaseReference myRef;
+    private FirebaseUser user;
+
+    //Filepath image user
+    String uriImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +109,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_register);
         toolbar.setLogo(R.drawable.ic_logo_appbar);
         setSupportActionBar(toolbar);
+
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -295,7 +321,8 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            usuario = new Usuario(name, lastName, email, password, passwordConfirm, serie);
+            uriImage = "android.resource://com.idit.gasomovil/drawable/usuario";
+            usuario = new Usuario(name, lastName, email, password, passwordConfirm, serie, uriImage);
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -303,13 +330,53 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d("Registro", "createUserWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
+                                user = mAuth.getCurrentUser();
                                 FirebaseDatabase database = FirebaseDatabase.getInstance();
-                                DatabaseReference myRef = database.getReference("User").child(user.getUid());
+                                myRef = database.getReference("User").child(user.getUid());
 
+                                Uri uri = Uri.parse(uriImage);
+                                StorageReference ref = storageReference.child("profileImages/"+UUID.randomUUID().toString());
+                                Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.fuel_station_1);
 
-                                Map<String, String> values = new HashMap<>(usuario.tohashmap());
-                                myRef.setValue(values);
+                                ref.putFile(uri)
+                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                Toast.makeText(RegisterActivity.this, "SUBI", Toast.LENGTH_SHORT).show();
+                                                usuario.mProfile_image = taskSnapshot.getDownloadUrl().toString();
+
+                                                Map<String, String> values = new HashMap<>(usuario.tohashmap());
+                                                myRef.setValue(values);
+                                                //user.updateProfile(new UserProfileChangeRequest())
+
+                                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                                        .setPhotoUri(Uri.parse(taskSnapshot.getDownloadUrl().toString()))
+                                                        .build();
+
+                                                user.updateProfile(profileUpdates)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    //Log.d(TAG, "User profile updated.");
+                                                                }
+                                                            }
+                                                        });
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(RegisterActivity.this, "FRACASo", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                            }
+                                        });
+
                                 showProgress(false);
                                 // Creamos usuario en base de datos y asignamos el tipo
 
@@ -325,12 +392,17 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                 showProgress(false);
 
                             }
-
-                            // ...
                         }
                     });
 
         }
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     private boolean isEmailValid(String email) {
@@ -439,24 +511,23 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      */
     public class Usuario  {
 
-        private final String mName;
-        private final String mLastName;
-        private final String mEmail;
-        private final String mPassword;
-        private final String mPasswordConfirm;
-        private final String mSerie;
+        private  String mName;
+        private  String mLastName;
+        private  String mEmail;
+        private  String mPassword;
+        private  String mPasswordConfirm;
+        private  String mSerie;
+        private  String mProfile_image;
 
         Usuario(String name, String lastName, String email, String password,
-                      String passwordConfirm, String serie) {
+                      String passwordConfirm, String serie, String profile_image) {
             mName = name;
             mLastName = lastName;
             mEmail = email;
             mPassword = password;
             mPasswordConfirm = passwordConfirm;
             mSerie = serie;
-
-
-
+            mProfile_image = profile_image;
         }
 
         private HashMap tohashmap(){
@@ -465,6 +536,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             user.put("last_name",mLastName);
             user.put("email", mEmail);
             user.put("serie", mSerie);
+            user.put("profile_image", mProfile_image);
             return  user;
         }
 
@@ -476,5 +548,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         finish();
         return false;
     }
+
+
 }
 
