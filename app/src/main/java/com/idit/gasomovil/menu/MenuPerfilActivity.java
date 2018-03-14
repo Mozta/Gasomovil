@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -98,6 +99,13 @@ public class MenuPerfilActivity extends AppCompatActivity {
         // Creamos la referencia a la base de datps
         mUser = mAuth.getCurrentUser();
 
+        // Load the image using Glide
+        Glide.with(mProfile_image.getContext())
+                .load(mUser.getPhotoUrl())
+                .placeholder(R.drawable.ic_account_circle_header)
+                .error(R.drawable.ic_account_circle_header)
+                .into(mProfile_image);
+
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -105,12 +113,7 @@ public class MenuPerfilActivity extends AppCompatActivity {
                 User user = dataSnapshot.getValue(User.class);
 
                 if (user != null){
-                    // Load the image using Glide
-                    Glide.with(mProfile_image.getContext())
-                            .load(user.getProfile_image())
-                            .placeholder(R.drawable.ic_account_circle_header)
-                            .error(R.drawable.ic_account_circle_header)
-                            .into(mProfile_image);
+
                     mName.setText(user.getName());
                     mLastName.setText(user.getLast_name());
                     mEmail.setText(user.getEmail());
@@ -159,7 +162,9 @@ public class MenuPerfilActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                // Uh-oh, an error occurred!
+                // Uh-oh, an error occurred
+                String tag = null;
+                Log.d(tag, "FALLE: " + exception.toString());
             }
         });
     }
@@ -189,7 +194,7 @@ public class MenuPerfilActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                //Log.d(TAG, "User profile updated.");
+                                                Log.d(TAG, "User profile updated.");
                                             }
                                         }
                                     });

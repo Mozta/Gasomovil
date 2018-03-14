@@ -38,7 +38,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_gravity="center_horizontal"
-                android:src="@drawable/ic_account_circle_header" />
+                />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
