@@ -437,12 +437,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         textUsername.setText(user.getEmail());
         imageView = (ImageView)view.findViewById(R.id.imageView);
 
-        // Load the image using Glide
-        Glide.with(imageView.getContext())
-                .load(user.getPhotoUrl())
-                .placeholder(R.drawable.ic_account_circle_header)
-                .error(R.drawable.ic_account_circle_header)
-                .into(imageView);
+
 
         mapView = mapFragment.getView();
 
@@ -719,6 +714,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Register EventBus
         EventBus.getDefault().register(this);
+
+        // Load the image using Glide
+        Glide.with(imageView.getContext())
+                .load(mAuth.getCurrentUser().getPhotoUrl())
+                .placeholder(R.drawable.ic_account_circle_header)
+                .error(R.drawable.ic_account_circle_header)
+                .into(imageView);
     }
 
     @Override
@@ -1376,6 +1378,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Bundle args = new Bundle();
                         // Colocamos el String
                         args.putString("name_station", model.name);
+                        args.putString("key_station", model.getKey());
                         args.putString("my_key", my_key);
 
 

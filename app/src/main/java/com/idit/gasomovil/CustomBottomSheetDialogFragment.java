@@ -44,7 +44,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
     double ltsCharged;
 
     String my_key;
-    String name_station;
+    String name_station, key_station;
 
 
     @Override
@@ -53,11 +53,15 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        name_station = getArguments().getString("name_station");
+        key_station = getArguments().getString("key_station");
+        my_key = getArguments().getString("my_key");
+
         //References to database
         ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("Historial");
-        ref_fuel_station = FirebaseDatabase.getInstance().getReference("Stations/123456a/Comments");
-        ref_fuel_station_service = FirebaseDatabase.getInstance().getReference("Stations/123456a/Services");
-        ref_fuel_station_price = FirebaseDatabase.getInstance().getReference("Stations/123456a/Prices");
+        ref_fuel_station = FirebaseDatabase.getInstance().getReference("Stations/"+key_station+"/Comments");
+        ref_fuel_station_service = FirebaseDatabase.getInstance().getReference("Stations/"+key_station+"/Services");
+        ref_fuel_station_price = FirebaseDatabase.getInstance().getReference("Stations/"+key_station+"/Prices");
 
         //Save service in stations
         serviceID = ref_fuel_station_service.push().getKey();
@@ -117,8 +121,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
             }
         });
 
-        name_station = getArguments().getString("name_station");
-        my_key = getArguments().getString("my_key");
+
 
         textChargue = contentView.findViewById(R.id.textCharge);
         textChargue.setText("Litros suministrados: 35");
