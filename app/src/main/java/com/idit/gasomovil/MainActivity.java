@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView textUsername;
     private ImageView imageView;
     private FloatingActionButton fab, fab2;
+    private String number_panic = "2441216481";
 
     //BottomInfo
     TextView imgExpandable;
@@ -1291,6 +1292,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_diagnostic) {
             Intent tutorial = new Intent(MainActivity.this, MenuDiagnosisActivity.class);
             startActivity(tutorial);
+        } else if (id == R.id.nav_panic) {
+            int permissionCheck = ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.CALL_PHONE);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                Log.i("Mensaje", "No se tiene permiso para realizar llamadas telefónicas.");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 225);
+            } else {
+                Log.i("Mensaje", "Se tiene permiso!");
+                Intent intent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+number_panic));
+                startActivity(intent);
+            }
+
+
         } else if (id == R.id.nav_help) {
             Intent tutorial = new Intent(MainActivity.this, MenuHelpActivity.class);
             startActivity(tutorial);
@@ -1337,7 +1351,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .center(fuel_station_area)
                         .radius(20) //in metters => 15m
                         .strokeColor(rankingColor(model.score))
-                        .fillColor(0x220000FF)
                         .strokeWidth(5.0f));
 
                 GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(fuel_station_area.latitude, fuel_station_area.longitude), 0.020f);
@@ -1436,7 +1449,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 int index = getItemIndex(model);
                 result.set(index, model);
-                //adapter.notifyItemChanged(index);
+                //result.notifyItemChanged(index);
+
+                //Create fuel Station area
+                LatLng fuel_station_area = new LatLng(model.latitude, model.longitude);
+                mMap.addMarker(new MarkerOptions()
+                        .position(fuel_station_area)
+                        .icon(vectorToBitmap(rankingIcon(model.score)))
+                        .title(model.name));
+
+                mMap.addCircle(new CircleOptions()
+                        .center(fuel_station_area)
+                        .radius(20) //in metters => 15m
+                        .strokeColor(rankingColor(model.score))
+                        .fillColor(0x220000FF)
+                        .strokeWidth(5.0f));
             }
 
             @Override

@@ -23,6 +23,10 @@
     <item android:title="Opciones">
         <menu>
             <item
+                android:id="@+id/nav_panic"
+                android:icon="@drawable/ic_sos"
+                android:title="S.O.S" />
+            <item
                 android:id="@+id/nav_help"
                 android:icon="@drawable/ic_help"
                 android:title="Ayuda" />
