@@ -130,6 +130,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocationListener,
         PairedDevicesDialog.PairedDeviceDialogListener{
 
+    public StationModel model;
+    public boolean tankBeforeCharge;
+    private double ltsAntesdeCarga = 0;
+    private int iPromedio = 0;
     private static final String TAG = "";
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
@@ -177,11 +181,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Menu menu;
 
-    private boolean isLaterCharge = false;
+    public static boolean isLaterCharge = false;
+    public static boolean recargue = false;
+
     private double ltsLaterCharge;
     //private double[] ltsAfterCharge;
     ArrayList<Double> ltsAfterCharge = new ArrayList<Double>();
-    private double averageLts;
+    private double averageLts = 0;
 
     private RecyclerView recyclerView;
     private List<CommentModel> resultComment;
@@ -309,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mSbCmdResp.append("R>>");
                         mSbCmdResp.append(readMessage);
                         mSbCmdResp.append("\n");
-                        mMonitor.setText(mSbCmdResp.toString());
+                        //mMonitor.setText(mSbCmdResp.toString());
                     }
                     break;
 
@@ -322,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mSbCmdResp.append("W>>");
                     mSbCmdResp.append(writeMessage);
                     mSbCmdResp.append("\n");
-                    mMonitor.setText(mSbCmdResp.toString());
+                    //mMonitor.setText(mSbCmdResp.toString());
                     break;
 
                 case MESSAGE_TOAST:
@@ -402,18 +408,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*if (mBluetoothAdapter.isEnabled()) {
-                    isLaterCharge = true;
-                    mCMDPointer = 1;
-                    sendFuelTankCommands();
+                if (mBluetoothAdapter.isEnabled()) {
+                    //isLaterCharge = true;
+                    MainActivity.recargue = true;
+                    //tankBeforeCharge = true;
+                    //mCMDPointer = 1;
+                    //sendFuelTankCommands();
+
+                    mCMDPointer = -1;
+                    sendDefaultCommands();
                     Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
                 else
                     Toast.makeText(MainActivity.this, "No estas conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
-                */
-                Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+
+                /*Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                        */
             }
         });
         fab.setVisibility(View.INVISIBLE);
@@ -490,11 +502,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         /* ============ ELM327 =========== */
         // log
-        /*displayLog("=>\n***************\n     ELM 327 started\n***************");
+        displayLog("=>\n***************\n     ELM 327 started\n***************");
 
         // connect widgets
-        mMonitor = (TextView) findViewById(R.id.tvMonitor);
-        mMonitor.setMovementMethod(new ScrollingMovementMethod());
+        //mMonitor = (TextView) findViewById(R.id.tvMonitor);
+        //mMonitor.setMovementMethod(new ScrollingMovementMethod());
 
 
         // make sure user has Bluetooth hardware
@@ -517,7 +529,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mSbCmdResp = new StringBuilder();
         mPartialResponse = new StringBuilder();
         mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
-        */
 
     }
 
@@ -680,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    /*
+
     @Override
     protected void onStart()
     {
@@ -706,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setupMonitor();
         }
     }
-    */
+
 
     @Override
     protected void onResume()
@@ -812,7 +823,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.menu_clr_scr:
                 mSbCmdResp.setLength(0);
-                mMonitor.setText("");
+                //mMonitor.setText("");
                 return true;
 
             /*case R.id.menu_toggle_obd_mode:
@@ -1025,9 +1036,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         if (mIOGateway.getState() != BluetoothIOGateway.STATE_CONNECTED)
         {
-            Toast.makeText(context, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
             //displayMessage(MainActivity.getAppContext(), "El dispositivo Bluetooth no está disponible");
-            //Toast.makeText(MainActivity.this, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -1065,7 +1076,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void sendFuelTankCommands()
     {
 
-
         if (mCMDPointer >= INIT_COMMANDS.length)
         {
             mCMDPointer = -1;
@@ -1078,7 +1088,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mCMDPointer = 0;
         }
 
-        sendOBD2CMD("012F");
+        while(ltsAntesdeCarga == 0){
+            sendOBD2CMD("012F");
+        }
+        Toast.makeText(this, "Lo tengo: "+ltsAntesdeCarga, Toast.LENGTH_SHORT).show();
+
+        if(isLaterCharge){
+            for (int i=0; i<10; i++){
+                sendOBD2CMD("012F");
+                //averageLts += ltsAfterCharge.get(i);
+            }
+            averageLts = averageLts/iPromedio;
+        }
+
     }
 
     private void parseResponse(String buffer)
@@ -1100,17 +1122,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mSbCmdResp.append(String.format("%.2f", ft));
                     mSbCmdResp.append("Lts)");
                     mSbCmdResp.append("\n");
+
+                    if(MainActivity.recargue){
+                        ltsAntesdeCarga = decimalFormat(ft);
+                        Toast.makeText(MainActivity.this, "Tengo: "+ltsAntesdeCarga+" Lts", Toast.LENGTH_SHORT).show();
+                        //MainActivity.recargue = false;
+                        Log.e("mio","entre a recargue"+ ltsAntesdeCarga);
+                    }
+
+                    if(MainActivity.isLaterCharge){
+                        averageLts = decimalFormat(ft);
+                        //iPromedio += 1;
+                        Toast.makeText(MainActivity.this, ltsAntesdeCarga+" / "+averageLts, Toast.LENGTH_SHORT).show();
+                        Log.e("mio","ENTRE a despues de carga"+ averageLts);
+
+                        ref.child("average_lts").setValue(averageLts-ltsAntesdeCarga);
+
+                        String my_key = ref.push().getKey();
+
+                        // Creamos un nuevo Bundle
+                        Bundle args = new Bundle();
+                        // Colocamos el String
+                        args.putString("name_station", model.name);
+                        args.putString("key_station", model.getKey());
+                        args.putString("my_key", my_key);
+                        Double ltsCargados = averageLts-ltsAntesdeCarga;
+                        Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
+                        Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
+                        Log.e("mio", "En total: "+String.valueOf(ltsCargados));
+                        args.putString("averageLts", String.valueOf(ltsCargados));
+
+
+
+                        //Initializing a bottom sheet
+                        BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
+
+                        bottomSheetDialogFragment.setArguments(args);
+                        //show it
+                        bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+
+                        bottomSheetDialogFragment.setCancelable(false);
+
+                        //Finalize asi que debo reiniciar los datos
+                        MainActivity.recargue = false;
+                        MainActivity.isLaterCharge = false;
+                        averageLts = 0;
+                    }
                 }
                 else{
                     mSbCmdResp.append("Calculando...");
                     mSbCmdResp.append("\n");
                 }
 
-
-                if (isLaterCharge)
-                    ltsLaterCharge = decimalFormat(ft);
-                else
-                    ltsAfterCharge.add(decimalFormat(ft));
+                //ltsAntesdeCarga = decimalFormat(ft);
 
                 break;
 
@@ -1120,7 +1184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mSbCmdResp.append("\n");
         }
 
-        mMonitor.setText(mSbCmdResp.toString());
+        //mMonitor.setText(mSbCmdResp.toString());
 
         if (mCMDPointer >= 0)
         {
@@ -1313,8 +1377,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(tutorial);
         } else if (id == R.id.nav_off) {
             mAuth.signOut();
-            startActivity(new Intent(MainActivity.this, BannerActivity.class));
             finish();
+            startActivity(new Intent(MainActivity.this, BannerActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1333,7 +1397,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ref_fuel_station.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                final StationModel model = dataSnapshot.getValue(StationModel.class);
+                model = dataSnapshot.getValue(StationModel.class);
                 model.setKey(dataSnapshot.getKey());
 
                 result.add(model);
@@ -1363,64 +1427,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     @Override
                     public void onKeyExited(String key) {
-                        averageLts = 0;
+
                         sendNotification("GASOMOVIL",String.format("¿Cómo ha estado el servicio de la estación?",key));
                         fab.setVisibility(View.INVISIBLE);
-                        /*if (mBluetoothAdapter.isEnabled()) {
-                            for (int i=0; i<5; i++){
-                                mCMDPointer = 1;
-                                sendFuelTankCommands();
-                                averageLts += ltsAfterCharge.get(i);
-                            }
-                            averageLts = averageLts/ltsAfterCharge.size();
-
-                            ref.child("average_lts").setValue(averageLts);
-                        }*/
-                        String my_key = ref.push().getKey();
-                        /*ref.child("Historial").child(my_key).child("name").setValue(model.name);
-                        ref.child("Historial").child(my_key).child("liters").setValue(45);
-                        ref.child("Historial").child(my_key).child("price").setValue(372.5);
-                        ref.child("Historial").child(my_key).child("score").setValue(4);
-                        ref.child("Historial").child(my_key).child("timestamp").setValue(1512668702);
-                        */
-                        //ref = FirebaseDatabase.getInstance().getReference("User").child(userID);
+                        //ref.child("average_lts").setValue(ltsLaterCharge);
 
 
+                        //Log.e("mio","entre a despues de carga2"+ averageLts);
 
-                        // Creamos un nuevo Bundle
-                        Bundle args = new Bundle();
-                        // Colocamos el String
-                        args.putString("name_station", model.name);
-                        args.putString("key_station", model.getKey());
-                        args.putString("my_key", my_key);
+                        //if (mBluetoothAdapter.isEnabled()) {
+                            if (MainActivity.recargue){
+                                Log.e("mio","sali a despues de carga2"+ averageLts);
+                                MainActivity.recargue = false;
+                                MainActivity.isLaterCharge = true;
+                                mCMDPointer = -1;
+                                sendDefaultCommands();
+                                Toast.makeText(MainActivity.this, ltsAntesdeCarga+" / "+averageLts, Toast.LENGTH_SHORT).show();
+                                ref.child("average_lts").setValue(averageLts-ltsAntesdeCarga);
+                            //
+                            //Finalize asi que debo reiniciar los datos
+                            //MainActivity.recargue = false;
+                            //MainActivity.isLaterCharge = false;
+                            //averageLts = 0;
+                        }
 
-
-
-                        //Initializing a bottom sheet
-                        BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
-
-                        bottomSheetDialogFragment.setArguments(args);
-                        //show it
-                        bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
-
-                        bottomSheetDialogFragment.setCancelable(false);
-
-
-
-
-                        //@SuppressLint("ResourceType") View v = findViewById(R.layout.dialog_modal);
-
-                        /*Button btnSaveChargue = bottomSheetDialogFragment.getView().findViewById(R.id.save_comment);
-                        btnSaveChargue.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Toast.makeText(MainActivity.this, "Siiiii", Toast.LENGTH_SHORT).show();
-                            }
-                        });*/
-                        //TextView txtCharge = findViewById(R.id.textCharge);
-                        //bottomSheetDialogFragment.getContext(R.id.textCharge);
-                        //TextView txtCharge = v.findViewById(R.id.textCharge);
-                        //txtCharge.setText("23 Lts");
 
                     }
 
@@ -1462,7 +1492,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .center(fuel_station_area)
                         .radius(20) //in metters => 15m
                         .strokeColor(rankingColor(model.score))
-                        .fillColor(0x220000FF)
+                        //.fillColor(0x220000FF)
                         .strokeWidth(5.0f));
             }
 

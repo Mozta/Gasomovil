@@ -45,6 +45,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     String my_key;
     String name_station, key_station;
+    double averageLts;
 
 
     @Override
@@ -56,6 +57,8 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
         name_station = getArguments().getString("name_station");
         key_station = getArguments().getString("key_station");
         my_key = getArguments().getString("my_key");
+        averageLts = Double.parseDouble(getArguments().getString("averageLts"));
+        //averageLts = Integer.parseInt(getArguments().getString("averageLts"));
 
         //References to database
         ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child("Historial");
@@ -65,12 +68,12 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         //Save service in stations
         serviceID = ref_fuel_station_service.push().getKey();
-        ref_fuel_station_service.child(serviceID).child("liters").setValue(25);
+        ref_fuel_station_service.child(serviceID).child("liters").setValue(averageLts);
         ref_fuel_station_price.child("magna").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 double price_fuel = (double) dataSnapshot.getValue();
-                ref_fuel_station_service.child(serviceID).child("price").setValue(price_fuel * 25);
+                ref_fuel_station_service.child(serviceID).child("price").setValue(price_fuel * averageLts);
             }
 
             @Override
@@ -115,7 +118,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, "GASOMOVIL");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "Acabo de cargar gasolina en: " + name_station + " y la califique con: "+myRatingBar_qualify_station.getRating()+" estrellas");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "Acabo de cargar "+ averageLts+" litros de gasolina en: " + name_station + " y la califique con: "+myRatingBar_qualify_station.getRating()+" estrellas");
                 shareIntent.setType("text/plain");
                 startActivity(shareIntent);
             }
@@ -124,7 +127,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
 
         textChargue = contentView.findViewById(R.id.textCharge);
-        textChargue.setText("Litros suministrados: 35");
+        textChargue.setText("Litros suministrados: "+ averageLts);
 
         myRatingBar_qualify_station = contentView.findViewById(R.id.myRatingBar_qualify_station);
         txtComment = contentView.findViewById(R.id.write_comment);
@@ -135,14 +138,17 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment {
             public void onClick(View view) {
                 //Save historial user
                 ref.child(my_key).child("name").setValue(name_station);
-                ref.child(my_key).child("liters").setValue(25);
+                ref.child(my_key).child("liters").setValue(averageLts);
 
                 ref_fuel_station_price.child("magna").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         amount = (double) dataSnapshot.getValue();
 
-                        ref.child(my_key).child("price").setValue(amount * 25);
+                        if(averageLts>0)
+                            ref.child(my_key).child("price").setValue(amount * averageLts);
+                        else
+                            ref.child(my_key).child("price").setValue(0);
                         ref.child(my_key).child("score").setValue(myRatingBar_qualify_station.getRating());
                         ref.child(my_key).child("timestamp").setValue(System.currentTimeMillis()/1000);
                     }
