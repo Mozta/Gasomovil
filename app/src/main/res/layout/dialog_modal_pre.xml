@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:seekarc="http://schemas.android.com/tools"
+    android:id="@+id/myViewBottom"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/share_charge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:backgroundTint="@color/colorAccent"
+            android:actionProviderClass="android.widget.ShareActionProvider"
+            android:background="@drawable/ic_expand_more"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:paddingHorizontal="12dp"
+            android:orientation="vertical"
+            android:layout_alignParentStart="true">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Litros actuales: "
+                android:textAlignment="center"
+                android:textSize="18sp"/>
+            <TextView
+                android:id="@+id/textCharge_actual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="27.5 L"
+                android:textAlignment="center"
+                android:textSize="48sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:paddingHorizontal="12dp"
+            android:orientation="vertical"
+            android:layout_alignParentEnd="true">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Litros faltantes: "
+                android:textAlignment="center"
+                android:textSize="18sp"/>
+            <TextView
+                android:id="@+id/textCharge_faltante"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="27.5 L"
+                android:textAlignment="center"
+                android:textSize="48sp"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <com.github.florent37.androidslidr.Slidr
+        android:id="@+id/slideure"
+        android:layout_marginHorizontal="20dp"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        app:slidr_edditable="false"
+        app:slidr_barHeight="18dp"
+        app:slidr_textBottom_size="18sp"
+        app:slidr_textTop_size="18sp"
+
+        app:slidr_textTop_visible="true"
+        app:slidr_region_leftColor="#4CAF50"
+        app:slidr_step_colorizeAfterLast="true"
+        app:slidr_regions_centerText="true"
+        app:slidr_regions="false"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Costo aproximado para tanque lleno: "
+        android:textAlignment="center" />
+    <TextView
+        android:id="@+id/textCharge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$ 423.15"
+        android:textAlignment="center"
+        android:textSize="48sp"/>
+
+
+    <Button
+        android:id="@+id/save_comment"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="18dp"
+        android:backgroundTint="@color/colorAccent"
+        android:text="Registrar carga"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold" />
+
+
+
+</LinearLayout>

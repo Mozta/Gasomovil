@@ -97,7 +97,7 @@
         android:layout_alignParentBottom="true"
         android:gravity="center_vertical"
         android:background="@color/colorWhite"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical">
 
         <Button

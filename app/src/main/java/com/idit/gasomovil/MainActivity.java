@@ -147,9 +147,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
-    private static int UPDATE_INTERVAL = 5000; //5 secs
-    private static int FASTEST_INTERVAL = 3000;
-    private static int DISPLACEMENT = 10;
+    private static int UPDATE_INTERVAL = 1000; //5 secs
+    private static int FASTEST_INTERVAL = 100;
+    private static int DISPLACEMENT = 1;
 
     DatabaseReference ref, ref_fuel_station;
     DatabaseReference mDatabase_comments;
@@ -417,8 +417,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     mCMDPointer = -1;
                     sendDefaultCommands();
-                    Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    //Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+                    //        .setAction("Action", null).show();
+
+                    String my_key = ref.push().getKey();
+                    // Creamos un nuevo Bundle
+                    Bundle args = new Bundle();
+                    // Colocamos el String
+                    args.putString("name_station", model.name);
+                    args.putString("key_station", model.getKey());
+                    args.putString("my_key", my_key);
+                    Double ltsCargados = averageLts-ltsAntesdeCarga;
+                    Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
+                    Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
+                    Log.e("mio", "En total: "+String.valueOf(ltsCargados));
+                    args.putString("averageLts", String.valueOf(ltsCargados));
+
+
+
+                    //Initializing a bottom sheet
+                    BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
+
+                    bottomSheetDialogFragment.setArguments(args);
+                    //show it
+                    bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+
+                    bottomSheetDialogFragment.setCancelable(true);
                 }
                 else
                     Toast.makeText(MainActivity.this, "No estas conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
@@ -1131,7 +1155,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
 
                     if(MainActivity.isLaterCharge){
-                        averageLts = decimalFormat(ft);
+                        //averageLts = decimalFormat(ft);
+                        averageLts = (double) (Math.random()*30)+1;
                         //iPromedio += 1;
                         Toast.makeText(MainActivity.this, ltsAntesdeCarga+" / "+averageLts, Toast.LENGTH_SHORT).show();
                         Log.e("mio","ENTRE a despues de carga"+ averageLts);
