@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.idit.gasomovil.Adapter.MyAdapter;
 import com.idit.gasomovil.Model.Item;
 import com.idit.gasomovil.R;
 
@@ -124,8 +123,7 @@ public class MenuHelpActivity extends AppCompatActivity {
                 items.add(item);
             }
         }*/
-        MyAdapter adapter = new MyAdapter(items);
-        list.setAdapter(adapter);
+
     }
 
     @Override

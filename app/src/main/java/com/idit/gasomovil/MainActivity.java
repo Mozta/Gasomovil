@@ -92,9 +92,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.idit.gasomovil.Adapter.PairedListAdapter;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
-import com.idit.gasomovil.Dialog.PairedDevicesDialog;
 import com.idit.gasomovil.Model.Item;
 import com.idit.gasomovil.Utility.MyLog;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
@@ -127,8 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
-        PairedDevicesDialog.PairedDeviceDialogListener{
+        LocationListener{
 
     public StationModel model;
     public boolean tankBeforeCharge;
@@ -228,10 +225,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TOAST = "toast_message";
 
     // Bluetooth
-    private static BluetoothIOGateway mIOGateway;
-    private static BluetoothAdapter mBluetoothAdapter;
-    private DeviceBroadcastReceiver mReceiver;
-    private PairedDevicesDialog dialog;
     private List<BluetoothDevice> mDeviceList;
 
     // Widgets
@@ -246,109 +239,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static StringBuilder mSbCmdResp;
     private static StringBuilder mPartialResponse;
     private String mConnectedDeviceName;
-    @SuppressLint("HandlerLeak")
-    private final Handler mMsgHandler = new Handler()
-    {
-        @Override
-        public void handleMessage(Message msg)
-        {
-            switch (msg.what)
-            {
-                case MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1)
-                    {
-                        // El dispositivo está realizando una conexión
-                        case BluetoothIOGateway.STATE_CONNECTING:
-                            //mConnectionStatus.setText(getString(R.string.BT_connecting));
-                            //mConnectionStatus.setBackgroundColor(Color.YELLOW);
-                            Toast.makeText(MainActivity.this, "Conectando...", Toast.LENGTH_SHORT).show();
-                            break;
-
-                        //El dispositivo tiene una conexión activa
-                        case BluetoothIOGateway.STATE_CONNECTED:
-                            //mBtnSend.setEnabled(true);
-                            //mConnectionStatus.setText(getString(R.string.BT_status_connected_to) + " " + mConnectedDeviceName);
-                            //mConnectionStatus.setBackgroundColor(Color.GREEN);
-                            Toast.makeText(MainActivity.this, "Conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
-                            sendDefaultCommands();
-                            break;
-
-                        case BluetoothIOGateway.STATE_LISTEN:
-                        case BluetoothIOGateway.STATE_NONE:
-                            //mBtnSend.setEnabled(false);
-                            //mConnectionStatus.setText(getString(R.string.BT_status_not_connected));
-                            //mConnectionStatus.setBackgroundColor(Color.RED);
-                            Toast.makeText(MainActivity.this, "Conexión fallida :(", Toast.LENGTH_SHORT).show();
-
-                            break;
-
-                        default:
-                            break;
-                    }
-                    break;
-
-                case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    readMessage = readMessage.trim();
-                    readMessage = readMessage.toUpperCase();
-                    displayLog(mConnectedDeviceName + ": " + readMessage);
-                    if (!inSimulatorMode)
-                    {
-                        if (readMessage.length() > 0) {
-                            char lastChar = readMessage.charAt(readMessage.length() - 1);
-                            if (lastChar == '>')
-                            {
-                                parseResponse(mPartialResponse.toString() + readMessage);
-                                mPartialResponse.setLength(0);
-                            }
-                            else
-                            {
-                                mPartialResponse.append(readMessage);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        mSbCmdResp.append("R>>");
-                        mSbCmdResp.append(readMessage);
-                        mSbCmdResp.append("\n");
-                        //mMonitor.setText(mSbCmdResp.toString());
-                    }
-                    break;
-
-                case MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-
-                    // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
-                    displayLog("Me: " + writeMessage);
-                    mSbCmdResp.append("W>>");
-                    mSbCmdResp.append(writeMessage);
-                    mSbCmdResp.append("\n");
-                    //mMonitor.setText(mSbCmdResp.toString());
-                    break;
-
-                case MESSAGE_TOAST:
-//                    displayMessage(MainActivity.getAppContext(),msg.getData().getString(TOAST));
-                    Toast.makeText(MainActivity.this,msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
-                    break;
-
-                case MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    break;
-            }
-        }
-
-    };
-
-    private static Context context;
-    public static Context getAppContext() {
-        return context;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -405,54 +295,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mBluetoothAdapter.isEnabled()) {
-                    //isLaterCharge = true;
-                    MainActivity.recargue = true;
-                    //tankBeforeCharge = true;
-                    //mCMDPointer = 1;
-                    //sendFuelTankCommands();
+                // TODO iniciar bluetooth, conectar con HM10, recibir información de "name_station", "key_station", "my_key", "averageLts", ltsAntesdeCarga, ltsCargados
 
-                    mCMDPointer = -1;
-                    sendDefaultCommands();
-                    //Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
-                    //        .setAction("Action", null).show();
-
-                    String my_key = ref.push().getKey();
-                    // Creamos un nuevo Bundle
-                    Bundle args = new Bundle();
-                    // Colocamos el String
-                    args.putString("name_station", model.name);
-                    args.putString("key_station", model.getKey());
-                    args.putString("my_key", my_key);
-                    Double ltsCargados = averageLts-ltsAntesdeCarga;
-                    Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
-                    Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
-                    Log.e("mio", "En total: "+String.valueOf(ltsCargados));
-                    args.putString("averageLts", String.valueOf(ltsCargados));
-
-
-
-                    //Initializing a bottom sheet
-                    BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
-
-                    bottomSheetDialogFragment.setArguments(args);
-                    //show it
-                    bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
-
-                    bottomSheetDialogFragment.setCancelable(true);
-                }
-                else
-                    Toast.makeText(MainActivity.this, "No estas conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
-
-                /*Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "[Aqui va la conexión a bluetooth] Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                        */
             }
         });
-        fab.setVisibility(View.INVISIBLE);
+
+        // TODO se deja visible para pruebas de Bluetooth
+        //fab.setVisibility(View.INVISIBLE);
 
         fab2 = (FloatingActionButton) findViewById(R.id.fab2);
 
@@ -474,19 +329,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         textUsername.setText(user.getEmail());
         imageView = (ImageView)view.findViewById(R.id.imageView);
 
-
-
         mapView = mapFragment.getView();
 
-        //Init view
-        /*imgExpandable = (TextView) findViewById(R.id.imgExpandable);
-        mBottomInfo = BottomInfoFragment.newInstance("Info bottom sheet");
-        imgExpandable.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBottomInfo.show(getSupportFragmentManager(),mBottomInfo.getTag());
-            }
-        });*/
         setUpLocation();
 
 
@@ -523,37 +367,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
-
-        /* ============ ELM327 =========== */
-        // log
-        displayLog("=>\n***************\n     ELM 327 started\n***************");
-
-        // connect widgets
-        //mMonitor = (TextView) findViewById(R.id.tvMonitor);
-        //mMonitor.setMovementMethod(new ScrollingMovementMethod());
-
-
-        // make sure user has Bluetooth hardware
-        displayLog("Trate de revisar el hardware bluetooth...");
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null)
-        {
-            // Device does not support Bluetooth
-            //displayMessage(MainActivity.getAppContext(),NO_BLUETOOTH);
-            Toast.makeText(MainActivity.this, NO_BLUETOOTH, Toast.LENGTH_SHORT).show();
-            displayLog(NO_BLUETOOTH);
-
-            //MainActivity.this.finish();
-            Toast.makeText(this, "Lo sentimos, tu telefono presenta fallas en el Bluetooth", Toast.LENGTH_SHORT).show();
-        }
-        // log
-        displayLog("Bluetooth encontrado.");
-
-        // Init variables
-        mSbCmdResp = new StringBuilder();
-        mPartialResponse = new StringBuilder();
-        mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
-
     }
 
     // Listener de la botonera (ir/favoritos) al seleccionar alguna gasolinera
@@ -717,29 +530,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart(){
         super.onStart();
-
-        if (mBluetoothAdapter == null)
-        {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        }
-
-        // make sure Bluetooth is enabled
-        displayLog("Intente comprobar la disponibilidad...");
-        if (!mBluetoothAdapter.isEnabled())
-        {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-        else
-        {
-            displayLog("Bluetooth esta disponible");
-
-            queryPairedDevices();
-            setupMonitor();
-        }
     }
 
 
@@ -769,30 +561,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy(){
         super.onDestroy();
-
-        // Un register receiver
-        if (mReceiver != null)
-        {
-            unregisterReceiver(mReceiver);
-        }
-
-        // Stop scanning if is in progress
-        cancelScanning();
-
-        // Stop mIOGateway
-        if (mIOGateway != null)
-        {
-            mIOGateway.stop();
-        }
-
-        // Clear StringBuilder
-        if (mSbCmdResp.length() > 0)
-        {
-            mSbCmdResp.setLength(0);
-        }
     }
 
     @Override
@@ -813,31 +583,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId())
         {
             case R.id.action_on_bluetooth:
-                if (mBluetoothAdapter == null) {
-                    mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                }
-
-                // make sure Bluetooth is enabled
-                displayLog("Intente comprobar la disponibilidad...");
-                if (!mBluetoothAdapter.isEnabled()) {
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                }
-                else {
-                    displayLog("Bluetooth esta disponible");
-
-                    queryPairedDevices();
-                    setupMonitor();
-                }
+                displayLog("Bluetooth esta disponible");
                 return true;
 
             case R.id.action_off_bluetooth:
-                mBluetoothAdapter.disable();
                 return true;
 
             case R.id.action_scan:
-                queryPairedDevices();
-                setupMonitor();
+
                 return true;
 
             case R.id.action_send_cmd:
@@ -847,31 +600,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.menu_clr_scr:
                 mSbCmdResp.setLength(0);
-                //mMonitor.setText("");
                 return true;
-
-            /*case R.id.menu_toggle_obd_mode:
-                inSimulatorMode = !inSimulatorMode;
-                if(inSimulatorMode)
-                {
-                    displayMessage(MainActivity.getAppContext(),"Modo simulador habilitado");
-                }
-                else
-                {
-                    displayMessage(MainActivity.getAppContext(),"Modo simulador deshabilitado");
-                }
-                return true;
-
-            case R.id.menu_clear_code:
-                sendOBD2CMD("04");
-                return true;*/
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void updateMenuTitles() {
         MenuItem bedMenuItem = menu.findItem(R.id.action_on_bluetooth);
-        if(mBluetoothAdapter.isEnabled()){
+        if(true){
             bedMenuItem.setTitle("Habilitar Bluetooth");
         } else {
             bedMenuItem.setTitle("Deshabilitar Bluetooth");
@@ -899,8 +635,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     displayLog("Bluetooth activado ");
 
-                    queryPairedDevices();
-                    setupMonitor();
                 }
 
                 break;
@@ -910,48 +644,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void setupMonitor()
-    {
-        // Start mIOGateway
-        if (mIOGateway == null)
-        {
-            mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
-        }
 
-        // Only if the state is STATE_NONE, do we know that we haven't started already
-        if (mIOGateway.getState() == BluetoothIOGateway.STATE_NONE)
-        {
-            // Start the Bluetooth chat services
-            mIOGateway.start();
-        }
 
-        // clear string builder if contains data
-        if (mSbCmdResp.length() > 0)
-        {
-            mSbCmdResp.setLength(0);
-        }
-
-    }
-
-    private void queryPairedDevices()
-    {
-        displayLog("Intente consultar dispositivos emparejados...");
-
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        // If there are paired devices
-        if (pairedDevices.size() > 0)
-        {
-            PairedDevicesDialog dialog = new PairedDevicesDialog();
-            dialog.setAdapter(new PairedListAdapter(this, pairedDevices), false);
-            showChooserDialog(dialog);
-        }
-        else
-        {
-            displayLog("No se ha encontrado ningún dispositivo emparejado");
-
-            scanAroundDevices();
-        }
-    }
 
     private void showChooserDialog(DialogFragment dialogFragment)
     {
@@ -966,30 +660,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dialogFragment.show(ft, "dialog");
     }
 
-    private void scanAroundDevices()
-    {
-        displayLog("Intentando escanerar dispositivos...");
 
-        if (mReceiver == null)
-        {
-            // Register the BroadcastReceiver
-            mReceiver = new DeviceBroadcastReceiver();
-            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(mReceiver, filter);
-        }
+    private void cancelScanning(){
 
-        // Start scanning
-        mBluetoothAdapter.startDiscovery();
-    }
-
-    private void cancelScanning()
-    {
-        if (mBluetoothAdapter.isDiscovering())
-        {
-            mBluetoothAdapter.cancelDiscovery();
-
-            displayLog("Escaneo cancelado");
-        }
     }
 
     /**
@@ -1006,7 +679,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mDeviceList.add(device);
 
-        // create dialog
+        /*// create dialog
         final Fragment fragment = this.getSupportFragmentManager().findFragmentByTag(TAG_DIALOG);
         if (fragment != null && fragment instanceof PairedDevicesDialog)
         {
@@ -1018,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dialog = new PairedDevicesDialog();
             dialog.setAdapter(new PairedListAdapter(this, new HashSet<>(mDeviceList)), true);
             showChooserDialog(dialog);
-        }
+        }*/
     }
 
     /*private static void displayMessage(Context context, String msg)
@@ -1031,46 +704,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, msg);
     }
 
-    @Override
-    public void onDeviceSelected(BluetoothDevice device)
-    {
-        cancelScanning();
-
-        displayLog("Dispositivo seleccionado: " + device.getName() + " (" + device.getAddress() + ")");
-
-        // Attempt to connect to the device
-        mIOGateway.connect(device, true);
-    }
-
-    @Override
-    public void onSearchAroundDevicesRequested()
-    {
-        scanAroundDevices();
-    }
-
-    @Override
-    public void onCancelScanningRequested()
-    {
-        cancelScanning();
-    }
-
-
-
     private void sendOBD2CMD(String sendMsg)
     {
-        if (mIOGateway.getState() != BluetoothIOGateway.STATE_CONNECTED)
+        /*if (mIOGateway.getState() != BluetoothIOGateway.STATE_CONNECTED)
         {
             //Toast.makeText(context, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
             //displayMessage(MainActivity.getAppContext(), "El dispositivo Bluetooth no está disponible");
             Toast.makeText(MainActivity.this, "El dispositivo Bluetooth no está disponible", Toast.LENGTH_SHORT).show();
             return;
-        }
+        }*/
 
         String strCMD = sendMsg;
         strCMD += '\r';
 
         byte[] byteCMD = strCMD.getBytes();
-        mIOGateway.write(byteCMD);
+        //mIOGateway.write(byteCMD);
     }
 
     private void sendDefaultCommands()
