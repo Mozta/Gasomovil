@@ -323,32 +323,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onClick(View view) {
+
                 // TODO iniciar bluetooth, conectar con HM10, recibir información de "name_station", "key_station", "my_key", "averageLts", ltsAntesdeCarga, ltsCargados
+
+                if (!mBluetoothAdapter.isEnabled()) {
+                    if (!mBluetoothAdapter.isEnabled()) {
+                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                    }
+                }else{
+                    Bundle args = new Bundle();
+                    // Colocamos el String
+                    args.putString("name_station", model.name);
+                    args.putString("key_station", model.getKey());
+                    //args.putString("my_key", my_key);
+                    Double ltsCargados = averageLts-ltsAntesdeCarga;
+                    Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
+                    Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
+                    Log.e("mio", "En total: "+String.valueOf(ltsCargados));
+                    args.putString("averageLts", String.valueOf(ltsCargados));
+
+                    //Initializing a bottom sheet
+                    BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
+
+                    bottomSheetDialogFragment.setArguments(args);
+                    //show it
+                    bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+
+                    bottomSheetDialogFragment.setCancelable(true);
+                }
 
                 Snackbar.make(view, "[Aqui va la conexión a bluetooth] Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
-                Bundle args = new Bundle();
-                // Colocamos el String
-                args.putString("name_station", model.name);
-                args.putString("key_station", model.getKey());
-                //args.putString("my_key", my_key);
-                Double ltsCargados = averageLts-ltsAntesdeCarga;
-                Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
-                Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
-                Log.e("mio", "En total: "+String.valueOf(ltsCargados));
-                args.putString("averageLts", String.valueOf(ltsCargados));
-
-                //Initializing a bottom sheet
-                BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
-
-                bottomSheetDialogFragment.setArguments(args);
-                //show it
-                bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
-
-                bottomSheetDialogFragment.setCancelable(true);
-
-
             }
         });
 
