@@ -105,4 +105,25 @@ Ut auctor eu nisi vel rhoncus. Donec nibh nulla, ornare consequat rhoncus vel, d
 Proin euismod sit amet lectus et gravida. Nunc lorem dui, volutpat sed dui at, vestibulum accumsan orci. Cras a nulla vestibulum, feugiat erat a, auctor dui. Quisque ultrices sapien sagittis fringilla finibus. Etiam ac purus a velit faucibus rhoncus. Sed ultrices, orci eget malesuada maximus, tortor magna lacinia urna, a mattis dui diam eget ex. Mauris eget ullamcorper purus, posuere tempus velit. Praesent metus metus, pretium a urna et, sodales congue mi.</string>
     <string name="title_activity_menu_settings">Configuración</string>
 
+    <!-- Bluetooth -->
+    <string name="ble_not_supported">BLE is not supported</string>
+    <string name="label_data">Data:</string>
+    <string name="label_device_address">Device address:</string>
+    <string name="label_state">State:</string>
+    <string name="no_data">No data</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="title_devices">BLE Device Scan</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+
+    <string name="unknown_device">Unknown device</string>
+    <string name="unknown_characteristic">Unknown characteristic</string>
+    <string name="unknown_service">Unknown service</string>
+
+    <!-- Menu items -->
+    <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+
 </resources>

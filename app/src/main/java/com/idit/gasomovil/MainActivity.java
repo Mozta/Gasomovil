@@ -2,11 +2,13 @@ package com.idit.gasomovil;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -193,23 +195,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     /* ========== ELM327 ============= */
-    //private static final String TAG = MainActivity.class.getSimpleName();
     private static final String TAG_DIALOG = "dialog";
-    private static final String NO_BLUETOOTH = "Ups, tu dispositivo no soporta bluetooth";
-    private static final String[] PIDS = {
-            "01", "02", "03", "04", "05", "06", "07", "08",
-            "09", "0A", "0B", "0C", "0D", "0E", "0F", "10",
-            "11", "12", "13", "14", "15", "16", "17", "18",
-            "19", "1A", "1B", "1C", "1D", "1E", "1F", "20"
-    };
+
+
+    // ========================== Bluetooth ==========================
+    private BluetoothAdapter mBluetoothAdapter;
+    private boolean mScanning;
+    private static final int REQUEST_ENABLE_BT = 1;
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
 
     // Commands
-    //private static final String[] INIT_COMMANDS = {"AT Z", "AT SP 0", "0105", "010C", "010D", "0131", "012F"};
     private static final String[] INIT_COMMANDS = {"AT SP 0", "012F"};
     private static int mCMDPointer = -1;
 
     // Intent request codes
-    private static final int REQUEST_ENABLE_BT = 101;
+    //private static final int REQUEST_ENABLE_BT = 101;
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 102;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 103;
 
@@ -284,6 +285,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        // ========================== Start Bluetooth ==========================
+        // Use this check to determine whether BLE is supported on the device.  Then you can
+        // selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+        // BluetoothAdapter through BluetoothManager.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        // Checks if Bluetooth is supported on the device.
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        // ========================== End Bluetooth ==========================
+
         // Status bar :: Transparent
         Window window = this.getWindow();
 
@@ -297,12 +320,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 // TODO iniciar bluetooth, conectar con HM10, recibir información de "name_station", "key_station", "my_key", "averageLts", ltsAntesdeCarga, ltsCargados
 
                 Snackbar.make(view, "[Aqui va la conexión a bluetooth] Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                Bundle args = new Bundle();
+                // Colocamos el String
+                args.putString("name_station", model.name);
+                args.putString("key_station", model.getKey());
+                //args.putString("my_key", my_key);
+                Double ltsCargados = averageLts-ltsAntesdeCarga;
+                Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
+                Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
+                Log.e("mio", "En total: "+String.valueOf(ltsCargados));
+                args.putString("averageLts", String.valueOf(ltsCargados));
+
+                //Initializing a bottom sheet
+                BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
+
+                bottomSheetDialogFragment.setArguments(args);
+                //show it
+                bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+
+                bottomSheetDialogFragment.setCancelable(true);
+
+
             }
         });
 
@@ -540,6 +586,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onResume();
 
+        // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
+        // fire an intent to display a dialog asking the user to grant permission to enable it.
+        if (!mBluetoothAdapter.isEnabled()) {
+            if (!mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            }
+        }
+
         // Register EventBus
         EventBus.getDefault().register(this);
 
@@ -615,33 +670,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-        switch (requestCode)
-        {
-            case REQUEST_ENABLE_BT:
-                if (resultCode == RESULT_CANCELED)
-                {
-                    //displayMessage(MainActivity.getAppContext(),"Bluetooth no activado :(");
-                    Toast.makeText(MainActivity.this, "Bluetooth no activado :(", Toast.LENGTH_SHORT).show();
-                    displayLog("Bluetooth no activado :(");
-                    return;
-                }
-
-                if (resultCode == RESULT_OK)
-                {
-                    displayLog("Bluetooth activado ");
-
-                }
-
-                break;
-
-            default:
-                // nothing at the moment
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // User chose not to enable Bluetooth.
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            Toast.makeText(this, "Si no me quieres usar para que me instalas", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 
