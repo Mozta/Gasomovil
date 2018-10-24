@@ -1,16 +1,17 @@
 package com.idit.gasomovil.BluetoothRegister;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -35,9 +36,12 @@ public class BluetoothBannerActivity extends AppCompatActivity {
     private FrameLayout containerLayout;
     private RelativeLayout buttonContainer;
 
-    private int currentItem;
+    private BluetoothAdapter mBluetoothAdapter;
+    private static final int REQUEST_ENABLE_BT = 1;
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
 
-    private Button searchBT;
+    private int currentItem;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,17 +72,59 @@ public class BluetoothBannerActivity extends AppCompatActivity {
                 .build());
 
 
-        searchBT = findViewById(R.id.register_bluetooth_button);
+        Button searchBT = findViewById(R.id.register_bluetooth_button);
 
         searchBT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Toast.makeText(BluetoothBannerActivity.this, "Cambia a la lista de dispositivos cercanos", Toast.LENGTH_SHORT).show();
-                /*Intent searchActivity = new Intent(BluetoothBannerActivity.this, null);
-                startActivity(searchActivity);*/
+                Intent searchActivity = new Intent(BluetoothBannerActivity.this, BluetoothListActivity.class);
+                startActivity(searchActivity);
             }
         });
+
+        // Use this check to determine whether BLE is supported on the device.  Then you can
+        // selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+        // BluetoothAdapter through BluetoothManager.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        // Checks if Bluetooth is supported on the device.
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
+        // fire an intent to display a dialog asking the user to grant permission to enable it.
+        if (!mBluetoothAdapter.isEnabled()) {
+            if (!mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // User chose not to enable Bluetooth.
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            finish();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void initAdapter() {
@@ -103,14 +149,6 @@ public class BluetoothBannerActivity extends AppCompatActivity {
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void changeStatusBarColor(int backgroundColor) {
-        Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(backgroundColor);
-    }
-
     private void controlPosition(int position) {
         notifyIndicator();
 
@@ -132,12 +170,6 @@ public class BluetoothBannerActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
         notifyIndicator();
         controlPosition(currentItem);
-    }
-
-    public void addFragment(Step step, int position) {
-        steps.add(position, step);
-        adapter.notifyDataSetChanged();
-        notifyIndicator();
     }
 
     public void notifyIndicator() {
