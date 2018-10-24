@@ -77,8 +77,15 @@ public class BluetoothBannerActivity extends AppCompatActivity {
         searchBT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent searchActivity = new Intent(BluetoothBannerActivity.this, BluetoothListActivity.class);
-                startActivity(searchActivity);
+                if (!mBluetoothAdapter.isEnabled()) {
+                    if (!mBluetoothAdapter.isEnabled()) {
+                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                    }
+                }else{
+                    Intent searchActivity = new Intent(BluetoothBannerActivity.this, BluetoothListActivity.class);
+                    startActivity(searchActivity);
+                }
             }
         });
 
