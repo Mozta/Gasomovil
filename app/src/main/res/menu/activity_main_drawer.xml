@@ -18,6 +18,10 @@
             android:id="@+id/nav_diagnostic"
             android:icon="@drawable/ic_menu_manage"
             android:title="Diagnostico" />
+        <item
+            android:id="@+id/add_bluetooth"
+            android:icon="@drawable/ic_bluetooth_connected_black_24dp"
+            android:title="Agregar Dispositivo" />
     </group>
 
     <item android:title="Opciones">

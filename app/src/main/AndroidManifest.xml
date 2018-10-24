@@ -19,7 +19,9 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- If your app is available to BLE-capable devices only -->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -79,7 +81,8 @@
         <activity
             android:name=".menu.MenuSettingsActivity"
             android:label="@string/title_activity_menu_settings"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".BluetoothRegister.BluetoothBannerActivity"></activity>
     </application>
 
 </manifest>
