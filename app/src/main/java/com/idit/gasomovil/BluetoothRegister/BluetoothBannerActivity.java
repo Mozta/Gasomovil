@@ -38,8 +38,6 @@ public class BluetoothBannerActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 1;
-    // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
 
     private int currentItem;
 
@@ -208,6 +206,7 @@ public class BluetoothBannerActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
 
     }
 

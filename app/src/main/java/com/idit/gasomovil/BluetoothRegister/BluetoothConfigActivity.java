@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.idit.gasomovil.R;
 
@@ -51,5 +50,12 @@ public class BluetoothConfigActivity extends AppCompatActivity {
                 startActivity(finishConfig);
             }
         });
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

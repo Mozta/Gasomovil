@@ -1,8 +1,6 @@
 package com.idit.gasomovil.BluetoothRegister;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,17 +10,13 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import com.idit.gasomovil.BluetoothService.BluetoothLeService;
+import com.idit.gasomovil.MainActivity;
 import com.idit.gasomovil.R;
-
-import java.util.ArrayList;
 
 public class BluetoothFinishActivity extends Activity {
 
@@ -97,10 +91,10 @@ public class BluetoothFinishActivity extends Activity {
 
         if(bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)){
             Log.d(TAG,"Se crea servicio");
-            Toast.makeText(this, "se Crea servicio", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Se crea servicio", Toast.LENGTH_SHORT).show();
         }else{
             Log.e(TAG,"Nel perro");
-            Toast.makeText(this, "nel perro", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Revisa tu conexión Bluetooth", Toast.LENGTH_SHORT).show();
         }
 
         Button finishButton = findViewById(R.id.finish_bt_button);
@@ -108,11 +102,12 @@ public class BluetoothFinishActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(mBluetoothLeService, "Aqui va a guardar los datos del Bluetooth", Toast.LENGTH_SHORT).show();
+                // TODO subir los datos a Firebase
+                final Intent main = new Intent(BluetoothFinishActivity.this, MainActivity.class);
+                startActivity(main);
                 finish();
             }
         });
-
-
     }
 
     @Override
@@ -122,8 +117,6 @@ public class BluetoothFinishActivity extends Activity {
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
-        }else{
-            Log.e(TAG, "No se inicio");
         }
     }
 
@@ -138,16 +131,6 @@ public class BluetoothFinishActivity extends Activity {
         super.onDestroy();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
     }
 
     private void updateConnectionState(final int resourceId) {
