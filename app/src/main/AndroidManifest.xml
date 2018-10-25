@@ -83,7 +83,10 @@
             android:label="@string/title_activity_menu_settings"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".BluetoothRegister.BluetoothBannerActivity" />
-        <activity android:name=".BluetoothRegister.BluetoothListActivity"></activity>
+        <activity android:name=".BluetoothRegister.BluetoothListActivity" />
+        <activity android:name=".BluetoothRegister.BluetoothConfigActivity" />
+        <activity android:name=".BluetoothRegister.BluetoothFinishActivity"></activity>
+        <service android:name=".BluetoothService.BluetoothLeService" android:enabled="true"/>
     </application>
 
 </manifest>

@@ -132,16 +132,15 @@ public class BluetoothListActivity extends ListActivity {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
 
-        Toast.makeText(this, device.getAddress(), Toast.LENGTH_SHORT).show();
-        /*final Intent intent = new Intent(this, DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        final Intent intent = new Intent(this, BluetoothConfigActivity.class);
+        intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ID, device.getName());
+        intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
-        startActivity(intent);*/
-        Toast.makeText(this, "Aqui guarda la MAC y cambia de vista", Toast.LENGTH_SHORT).show();
+        startActivity(intent);
+
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -178,7 +177,8 @@ public class BluetoothListActivity extends ListActivity {
 
         public void addDevice(BluetoothDevice device) {
             if(!mLeDevices.contains(device)) {
-                mLeDevices.add(device);
+                if(device.getName()!=null)
+                    mLeDevices.add(device);
             }
         }
 
