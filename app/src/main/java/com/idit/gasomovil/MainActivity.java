@@ -94,6 +94,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.idit.gasomovil.BluetoothRegister.BluetoothBannerActivity;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
 import com.idit.gasomovil.Model.Item;
 import com.idit.gasomovil.Utility.MyLog;
@@ -1071,6 +1072,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(tutorial);
         } else if (id == R.id.nav_diagnostic) {
             Intent tutorial = new Intent(MainActivity.this, MenuDiagnosisActivity.class);
+            startActivity(tutorial);
+        } else if (id == R.id.add_bluetooth) {
+            Intent tutorial = new Intent(MainActivity.this, BluetoothBannerActivity.class);
             startActivity(tutorial);
         } else if (id == R.id.nav_panic) {
             int permissionCheck = ContextCompat.checkSelfPermission(
