@@ -109,7 +109,7 @@
 
 
     <Button
-        android:id="@+id/save_comment"
+        android:id="@+id/register_charge"
         style="?android:textAppearanceSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -117,7 +117,29 @@
         android:layout_marginTop="18dp"
         android:backgroundTint="@color/colorAccent"
         android:text="Registrar carga"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorGray"
+        android:textStyle="bold" />
+
+
+    <ProgressBar
+        android:id="@+id/progressBar_loading"
+        style="?android:attr/progressBarStyle"
+        android:visibility="gone"
+        android:indeterminateTint="@color/colorAccent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/stop_charge"
+        style="?android:textAppearanceSmall"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="18dp"
+        android:backgroundTint="@color/colorPremium"
+        android:text="Detener carga"
+        android:textColor="@color/colorGray"
         android:textStyle="bold" />
 
 

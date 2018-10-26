@@ -159,10 +159,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     Marker mCurrent;
 
+    private BottomSheetDialogFragment bottomSheetDialogFragment_preload;
+
     private TextView textUsername;
     private ImageView imageView;
     private FloatingActionButton fab, fab2;
     private String number_panic = "2441216481";
+
+    public boolean finish_chargue;
 
     //BottomInfo
     TextView imgExpandable;
@@ -404,11 +408,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             window.setStatusBarColor(Color.TRANSPARENT);
         }
 
+        finish_chargue = false;
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mBluetoothAdapter.isEnabled()) {
+                if (!mBluetoothAdapter.isEnabled()) {
                     //isLaterCharge = true;
                     MainActivity.recargue = true;
                     //tankBeforeCharge = true;
@@ -436,13 +442,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
                     //Initializing a bottom sheet
-                    BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
+                    bottomSheetDialogFragment_preload = new CustomBottomSheetDialogFragmentCarga();
 
-                    bottomSheetDialogFragment.setArguments(args);
+                    bottomSheetDialogFragment_preload.setArguments(args);
                     //show it
-                    bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+                    bottomSheetDialogFragment_preload.show(getSupportFragmentManager(), bottomSheetDialogFragment_preload.getTag());
 
-                    bottomSheetDialogFragment.setCancelable(true);
+                    bottomSheetDialogFragment_preload.setCancelable(true);
+
+                    finish_chargue = true;
                 }
                 else
                     Toast.makeText(MainActivity.this, "No estas conectado al dispositivo OBD-II", Toast.LENGTH_SHORT).show();
@@ -452,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         */
             }
         });
-        fab.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.VISIBLE);
 
         fab2 = (FloatingActionButton) findViewById(R.id.fab2);
 
@@ -554,6 +562,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mPartialResponse = new StringBuilder();
         mIOGateway = new BluetoothIOGateway(this, mMsgHandler);
 
+        if(finish_chargue){
+            //isLaterCharge = true;
+            MainActivity.recargue = true;
+            //tankBeforeCharge = true;
+            //mCMDPointer = 1;
+            //sendFuelTankCommands();
+
+            mCMDPointer = -1;
+            sendDefaultCommands();
+            //Snackbar.make(view, "Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+            //        .setAction("Action", null).show();
+
+            String my_key = ref.push().getKey();
+            // Creamos un nuevo Bundle
+            Bundle args = new Bundle();
+            // Colocamos el String
+            args.putString("name_station", model.name);
+            args.putString("key_station", model.getKey());
+            args.putString("my_key", my_key);
+            Double ltsCargados = averageLts-ltsAntesdeCarga;
+            Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
+            Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
+            Log.e("mio", "En total: "+String.valueOf(ltsCargados));
+            args.putString("averageLts", String.valueOf(ltsCargados));
+
+
+
+            //Initializing a bottom sheet
+            BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
+
+            bottomSheetDialogFragment.setArguments(args);
+            //show it
+            bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+
+            bottomSheetDialogFragment.setCancelable(false);
+
+            finish_chargue = false;
+        }
     }
 
     // Listener de la botonera (ir/favoritos) al seleccionar alguna gasolinera
