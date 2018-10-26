@@ -8,8 +8,12 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +24,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.R;
 
 import java.util.ArrayList;
@@ -31,14 +43,26 @@ public class BluetoothListActivity extends ListActivity {
     private boolean mScanning;
     private Handler mHandler;
 
+    FloatingActionButton refresh;
+
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 5000;
+
+    DatabaseReference ref;
+    private String userID;
+    public static final String DEVICE_FIREBASE = "Device";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mHandler = new Handler();
+
+        // ========================== Start Firebase ==========================
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // uid de usuario
+
+        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child(DEVICE_FIREBASE); // ref a device
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -101,7 +125,7 @@ public class BluetoothListActivity extends ListActivity {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
 
-        final Intent intent = new Intent(this, BluetoothConfigActivity.class);
+        final Intent intent = new Intent(BluetoothListActivity.this, BluetoothConfigActivity.class);
         intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ID, device.getName());
         intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
@@ -109,7 +133,6 @@ public class BluetoothListActivity extends ListActivity {
             mScanning = false;
         }
         startActivity(intent);
-
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -139,20 +162,20 @@ public class BluetoothListActivity extends ListActivity {
         private ArrayList<BluetoothDevice> mLeDevices;
         private LayoutInflater mInflator;
 
-        public LeDeviceListAdapter() {
+        LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<BluetoothDevice>();
             mInflator = BluetoothListActivity.this.getLayoutInflater();
         }
 
-        public void addDevice(BluetoothDevice device) {
+        void addDevice(BluetoothDevice device) {
             if(!mLeDevices.contains(device)) {
                 if(device.getName()!=null)
                     mLeDevices.add(device);
             }
         }
 
-        public BluetoothDevice getDevice(int position) {
+        BluetoothDevice getDevice(int position) {
             return mLeDevices.get(position);
         }
 
@@ -177,13 +200,13 @@ public class BluetoothListActivity extends ListActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            ViewHolder viewHolder;
+            final ViewHolder viewHolder;
             // General ListView optimization code.
             if (view == null) {
                 view = mInflator.inflate(R.layout.listitem_device, null);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
-                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                viewHolder.deviceAddress = view.findViewById(R.id.device_address);
+                viewHolder.deviceName = view.findViewById(R.id.device_name);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
@@ -196,6 +219,24 @@ public class BluetoothListActivity extends ListActivity {
             else
                 viewHolder.deviceName.setText(R.string.unknown_device);
             viewHolder.deviceAddress.setText(device.getAddress());
+            /*
+            * DatabaseReference bt_ref = ref.child(device.getAddress());
+
+            ValueEventListener e = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        viewHolder.deviceAddress.setText("Ya existe");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            };
+            bt_ref.addValueEventListener(e);
+            * */
 
             return view;
         }
@@ -204,7 +245,6 @@ public class BluetoothListActivity extends ListActivity {
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
-
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                     runOnUiThread(new Runnable() {

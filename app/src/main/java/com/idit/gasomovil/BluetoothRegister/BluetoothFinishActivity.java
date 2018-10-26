@@ -9,14 +9,27 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.BluetoothService.BluetoothLeService;
 import com.idit.gasomovil.MainActivity;
 import com.idit.gasomovil.R;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BluetoothFinishActivity extends Activity {
 
@@ -32,6 +45,11 @@ public class BluetoothFinishActivity extends Activity {
     private String mDeviceId;
     private BluetoothLeService mBluetoothLeService;
 
+    private String userID;
+    public static final String DEVICE_FIREBASE = "Device";
+
+    DatabaseReference ref;
+
     private boolean mConnected = false;
 
     // Code to manage Service lifecycle.
@@ -41,11 +59,12 @@ public class BluetoothFinishActivity extends Activity {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
+                Log.e(TAG, "Error al conectar");
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
-            Log.d(TAG,"Se crea servicio");
+            Log.d(TAG,"Se conecta a dispositivo");
+
             mBluetoothLeService.connect(mDeviceAddress);
         }
 
@@ -82,6 +101,11 @@ public class BluetoothFinishActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_finish);
 
+        // ========================== Start Firebase ==========================
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // uid de usuario
+
+        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child(DEVICE_FIREBASE); // ref a device
+
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
@@ -101,8 +125,29 @@ public class BluetoothFinishActivity extends Activity {
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mBluetoothLeService, "Aqui va a guardar los datos del Bluetooth", Toast.LENGTH_SHORT).show();
-                // TODO subir los datos a Firebase
+
+                DatabaseReference bt_ref = ref.child(mDeviceAddress);
+                ValueEventListener e = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(!dataSnapshot.exists()){
+                            ref.child(mDeviceAddress).setValue(new BluetoothModel(mDeviceId,mDeviceAddress,mDeviceName).toMap())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Toast.makeText(mBluetoothLeService, "Completado", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                };
+                bt_ref.addValueEventListener(e);
+
                 final Intent main = new Intent(BluetoothFinishActivity.this, MainActivity.class);
                 startActivity(main);
                 finish();
