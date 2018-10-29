@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean tankBeforeCharge;
     private double ltsAntesdeCarga = 0;
     private int iPromedio = 0;
-    private static final String TAG = "";
+    private static final String TAG = "MainActivity";
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
     View mapView;
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static int FASTEST_INTERVAL = 100;
     private static int DISPLACEMENT = 1;
 
-    DatabaseReference ref, ref_fuel_station;
+    DatabaseReference ref, ref_fuel_station, device_ref;
     DatabaseReference mDatabase_comments;
     GeoFire geoFire;
 
@@ -257,6 +257,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ref_fuel_station = FirebaseDatabase.getInstance().getReference("Stations");
 
+        device_ref = ref.child("Device");
+
         System.out.println(ref_fuel_station);
 
         geoFire = new GeoFire(ref);
@@ -277,14 +279,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        // Toolbar :: Transparent
-        toolbar.setBackgroundColor(Color.TRANSPARENT);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        device_ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+                    Intent tutorial = new Intent(MainActivity.this, BluetoothBannerActivity.class);
+                    startActivity(tutorial);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        device_ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+
+                    Toast.makeText(MainActivity.this, "Se han modificado un dispositivo", Toast.LENGTH_SHORT).show();
+                    toolbar.setBackgroundColor(Color.RED);
+                    toolbar.setTitle("Sin Dispositivos");
+                }else {
+                    // Toolbar :: Transparent
+                    toolbar.setBackgroundColor(Color.TRANSPARENT);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // ========================== Start Bluetooth ==========================
         // Use this check to determine whether BLE is supported on the device.  Then you can

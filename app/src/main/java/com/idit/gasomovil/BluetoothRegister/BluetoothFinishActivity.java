@@ -22,13 +22,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.BluetoothService.BluetoothLeService;
 import com.idit.gasomovil.MainActivity;
 import com.idit.gasomovil.R;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class BluetoothFinishActivity extends Activity {
@@ -126,18 +124,18 @@ public class BluetoothFinishActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                DatabaseReference bt_ref = ref.child(mDeviceAddress);
+                final DatabaseReference bt_ref = ref.child(mDeviceAddress);
                 ValueEventListener e = new ValueEventListener() {
+                    BluetoothModel newBT = new BluetoothModel(mDeviceId,mDeviceAddress,mDeviceName);
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(!dataSnapshot.exists()){
-                            ref.child(mDeviceAddress).setValue(new BluetoothModel(mDeviceId,mDeviceAddress,mDeviceName).toMap())
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            Toast.makeText(mBluetoothLeService, "Completado", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                            try{
+                                bt_ref.setValue(newBT.toMap());
+                            }catch (NullPointerException e){
+                                Log.d(TAG, "Se ha borrado un dispositivo");
+                            }
+                            newBT=null;
                         }
                     }
 
