@@ -212,21 +212,17 @@ public class BluetoothListActivity extends ListActivity {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            BluetoothDevice device = mLeDevices.get(i);
-            final String deviceName = device.getName();
-            if (deviceName != null && deviceName.length() > 0)
-                viewHolder.deviceName.setText(deviceName);
-            else
-                viewHolder.deviceName.setText(R.string.unknown_device);
-            viewHolder.deviceAddress.setText(device.getAddress());
-            /*
-            * DatabaseReference bt_ref = ref.child(device.getAddress());
+            final BluetoothDevice device = mLeDevices.get(i);
+
+            DatabaseReference bt_ref = ref.child(device.getAddress());
 
             ValueEventListener e = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()){
                         viewHolder.deviceAddress.setText("Ya existe");
+                    }else{
+                        viewHolder.deviceAddress.setText(device.getAddress());
                     }
                 }
 
@@ -236,7 +232,14 @@ public class BluetoothListActivity extends ListActivity {
                 }
             };
             bt_ref.addValueEventListener(e);
-            * */
+
+            final String deviceName = device.getName();
+            if (deviceName != null && deviceName.length() > 0)
+                viewHolder.deviceName.setText(deviceName);
+            else
+                viewHolder.deviceName.setText(R.string.unknown_device);
+
+
 
             return view;
         }
