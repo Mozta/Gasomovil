@@ -1,7 +1,6 @@
 package com.idit.gasomovil.menu.RVDevicesList;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ import com.idit.gasomovil.R;
 
 import java.util.ArrayList;
 
-public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.MyViewHolder> {
+public class SharedDevicesListAdapter extends RecyclerView.Adapter<SharedDevicesListAdapter.MyViewHolder> {
 
     private ArrayList<BluetoothModel> dataSet;
 
@@ -22,7 +21,7 @@ public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.
         TextView textViewName;
         TextView textViewMAC;
         TextView textViewDate;
-        TextView textViewUsers;
+        TextView textViewOwner;
         ImageView imageViewIcon;
 
         MyViewHolder(View itemView) {
@@ -30,39 +29,39 @@ public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.
             this.textViewName = itemView.findViewById(R.id.name_device_item_txt);
             this.textViewMAC = itemView.findViewById(R.id.mac_device_item_txt);
             this.textViewDate = itemView.findViewById(R.id.date_device_item_txt);
-            this.textViewUsers = itemView.findViewById(R.id.share_device_item_txt);
+            this.textViewOwner = itemView.findViewById(R.id.owner_device_item_txt);
             this.imageViewIcon = itemView.findViewById(R.id.imageView_device_item);
         }
     }
 
-    public DevicesListAdapter(ArrayList<BluetoothModel> data) {
+    SharedDevicesListAdapter(ArrayList<BluetoothModel> data) {
         this.dataSet = data;
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SharedDevicesListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.cardview_device_list, parent, false);
+                .inflate(R.layout.cardview_shared_device_list, parent, false);
 
         //view.setOnClickListener(MenuDevicesListActivity.myOnClickListener);
 
-        MyViewHolder myViewHolder = new MyViewHolder(view);
+        SharedDevicesListAdapter.MyViewHolder myViewHolder = new SharedDevicesListAdapter.MyViewHolder(view);
         return myViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int listPosition) {
+    public void onBindViewHolder(final SharedDevicesListAdapter.MyViewHolder holder, final int listPosition) {
 
         TextView textViewName = holder.textViewName;
         TextView textViewMAC = holder.textViewMAC;
         TextView textViewDate = holder.textViewDate;
-        TextView textViewUsers = holder.textViewUsers;
+        TextView textViewUsers = holder.textViewOwner;
         ImageView imageView = holder.imageViewIcon;
 
         textViewName.setText(dataSet.get(listPosition).get_name());
         textViewMAC.setText(dataSet.get(listPosition).get_mac());
         textViewDate.setText(dataSet.get(listPosition).get_create());
-        textViewUsers.setText("1");
+        textViewUsers.setText("Don papi");
         //imageView.setImageResource(dataSet.get(listPosition).getImage());
     }
 

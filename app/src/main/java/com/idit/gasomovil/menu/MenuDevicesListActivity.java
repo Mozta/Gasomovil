@@ -4,45 +4,50 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.idit.gasomovil.BluetoothRegister.BluetoothBannerActivity;
-import com.idit.gasomovil.BluetoothRegister.BluetoothModel;
 import com.idit.gasomovil.R;
-import com.idit.gasomovil.menu.RVDevicesList.DataDummy;
-import com.idit.gasomovil.menu.RVDevicesList.DevicesListAdapter;
-
-import java.util.ArrayList;
+import com.idit.gasomovil.menu.RVDevicesList.RegisteredDevicesFragment;
+import com.idit.gasomovil.menu.RVDevicesList.SharedDevicesFragment;
 
 public class MenuDevicesListActivity extends AppCompatActivity {
-
-    private static RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private static RecyclerView recyclerView;
-    private static ArrayList<BluetoothModel> data;
-
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment fragment = null;
             switch (item.getItemId()) {
                 case R.id.navigation_registered_devices:
-                    return true;
+                    fragment = new RegisteredDevicesFragment();
+                    break;
                 case R.id.navigation_shared_devices:
-                    return true;
+                    fragment = new SharedDevicesFragment();
+                    break;
             }
-            return false;
+
+            return loadFragment(fragment);
         }
+
     };
+
+    private boolean loadFragment(Fragment fragment) {
+        //switching fragment
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,26 +60,13 @@ public class MenuDevicesListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        //loading the default fragment
+        loadFragment(new RegisteredDevicesFragment());
+
         BottomNavigationView navigation = findViewById(R.id.navigation_list);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        recyclerView = findViewById(R.id.rv_device_list);
-        recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        data = new ArrayList<BluetoothModel>();
-        for (int i = 0; i < DataDummy.nameArray.length; i++) {
-            data.add(new BluetoothModel(
-                    DataDummy.idArray[i],
-                    DataDummy.macArray[i],
-                    DataDummy.nameArray[i]
-            ));
-        }
-
-        adapter = new DevicesListAdapter(data);
-        recyclerView.setAdapter(adapter);
     }
 
     @Override
