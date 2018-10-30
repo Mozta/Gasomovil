@@ -9,14 +9,11 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,7 +43,7 @@ public class BluetoothFinishActivity extends Activity {
     private String userID;
     public static final String DEVICE_FIREBASE = "Device";
 
-    DatabaseReference ref;
+    DatabaseReference device_ref, ref;
 
     private boolean mConnected = false;
 
@@ -102,7 +99,8 @@ public class BluetoothFinishActivity extends Activity {
         // ========================== Start Firebase ==========================
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // uid de usuario
 
-        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child(DEVICE_FIREBASE); // ref a device
+        ref = FirebaseDatabase.getInstance().getReference();
+        device_ref = ref.child("User").child(userID).child(DEVICE_FIREBASE); // ref a device
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -124,7 +122,8 @@ public class BluetoothFinishActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                final DatabaseReference bt_ref = ref.child(mDeviceAddress);
+                final DatabaseReference bt_ref = device_ref.child(mDeviceAddress);
+                final DatabaseReference device_bt_ref = ref.child("Device").child(mDeviceAddress);
                 ValueEventListener e = new ValueEventListener() {
                     BluetoothModel newBT = new BluetoothModel(mDeviceId,mDeviceAddress,mDeviceName);
                     @Override
@@ -132,6 +131,9 @@ public class BluetoothFinishActivity extends Activity {
                         if(!dataSnapshot.exists()){
                             try{
                                 bt_ref.setValue(newBT.toMap());
+                                Map aux = newBT.toMap();
+                                aux.put("owner",userID);
+                                device_bt_ref.setValue(aux);
                             }catch (NullPointerException e){
                                 Log.d(TAG, "Se ha borrado un dispositivo");
                             }

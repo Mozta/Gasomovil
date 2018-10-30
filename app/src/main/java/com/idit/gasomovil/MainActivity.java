@@ -305,8 +305,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists()){
-
-                    Toast.makeText(MainActivity.this, "Se han modificado un dispositivo", Toast.LENGTH_SHORT).show();
                     toolbar.setBackgroundColor(Color.RED);
                     toolbar.setTitle("Sin Dispositivos");
                 }else {

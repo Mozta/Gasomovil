@@ -49,7 +49,7 @@ public class BluetoothListActivity extends ListActivity {
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 5000;
 
-    DatabaseReference ref;
+    DatabaseReference ref, own_device, device_ref;
     private String userID;
     public static final String DEVICE_FIREBASE = "Device";
 
@@ -62,7 +62,11 @@ public class BluetoothListActivity extends ListActivity {
         // ========================== Start Firebase ==========================
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // uid de usuario
 
-        ref = FirebaseDatabase.getInstance().getReference().child("User").child(userID).child(DEVICE_FIREBASE); // ref a device
+        ref = FirebaseDatabase.getInstance().getReference();
+
+        own_device = ref.child("User").child(userID).child(DEVICE_FIREBASE); // ref a device
+
+        device_ref = ref.child("Device");
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -125,14 +129,48 @@ public class BluetoothListActivity extends ListActivity {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
 
-        final Intent intent = new Intent(BluetoothListActivity.this, BluetoothConfigActivity.class);
-        intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ID, device.getName());
-        intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
-        startActivity(intent);
+
+        device_ref.child(device.getAddress()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+                    Log.d("Lista","Es nuevo");
+                    final Intent intent = new Intent(BluetoothListActivity.this, BluetoothConfigActivity.class);
+                    intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ID, device.getName());
+                    intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                    startActivity(intent);
+                }else
+                    device_ref.child(device.getAddress()).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Log.d("Valor",dataSnapshot.getValue().toString());
+                            Log.d("usuario",userID);
+                            if(userID.equals(dataSnapshot.getValue())){
+                                Toast.makeText(BluetoothListActivity.this, "Este dispositivo ya esta registrado", Toast.LENGTH_SHORT).show();
+                            }else{
+                                Log.d("Lista","Es prestado");
+                                final Intent intent = new Intent(BluetoothListActivity.this, BluetoothRequestActivity.class);
+                                startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -214,7 +252,7 @@ public class BluetoothListActivity extends ListActivity {
 
             final BluetoothDevice device = mLeDevices.get(i);
 
-            DatabaseReference bt_ref = ref.child(device.getAddress());
+            DatabaseReference bt_ref = own_device.child(device.getAddress());
 
             ValueEventListener e = new ValueEventListener() {
                 @Override
