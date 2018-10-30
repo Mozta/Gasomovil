@@ -68,7 +68,7 @@ public class MenuDevicesListActivity extends AppCompatActivity {
                 startActivity(tutorial);
                 return true;
             default:
-                Toast.makeText(this, "Error mortal", Toast.LENGTH_SHORT).show();
+                onSupportNavigateUp();
                 return true;
         }
     }
