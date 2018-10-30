@@ -19,9 +19,9 @@
             android:icon="@drawable/ic_menu_manage"
             android:title="Diagnostico" />
         <item
-            android:id="@+id/add_bluetooth"
+            android:id="@+id/device_list"
             android:icon="@drawable/ic_bluetooth_connected_black_24dp"
-            android:title="Agregar Dispositivo" />
+            android:title="@string/devices_list" />
     </group>
 
     <item android:title="Opciones">

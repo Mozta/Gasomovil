@@ -98,6 +98,7 @@ import com.idit.gasomovil.BluetoothRegister.BluetoothBannerActivity;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
 import com.idit.gasomovil.Model.Item;
 import com.idit.gasomovil.Utility.MyLog;
+import com.idit.gasomovil.menu.MenuDevicesListActivity;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
 import com.idit.gasomovil.menu.MenuFavouriteActivity;
 import com.idit.gasomovil.menu.MenuHelpActivity;
@@ -1106,8 +1107,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_diagnostic) {
             Intent tutorial = new Intent(MainActivity.this, MenuDiagnosisActivity.class);
             startActivity(tutorial);
-        } else if (id == R.id.add_bluetooth) {
-            Intent tutorial = new Intent(MainActivity.this, BluetoothBannerActivity.class);
+        } else if (id == R.id.device_list) {
+            Intent tutorial = new Intent(MainActivity.this, MenuDevicesListActivity.class);
             startActivity(tutorial);
         } else if (id == R.id.nav_panic) {
             int permissionCheck = ContextCompat.checkSelfPermission(

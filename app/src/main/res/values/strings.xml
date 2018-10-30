@@ -125,5 +125,14 @@ Proin euismod sit amet lectus et gravida. Nunc lorem dui, volutpat sed dui at, v
     <string name="menu_disconnect">Disconnect</string>
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
+    <string name="title_activity_menu_devices_list">Dispositivos</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <!-- Devices List -->
+    <string name="title_registered_devices">Registrados</string>
+    <string name="title_shared_devices">Compartidos</string>
+    <string name="devices_list">Dispositivos</string>
 
 </resources>

@@ -91,7 +91,10 @@
             android:name=".BluetoothService.BluetoothLeService"
             android:enabled="true" />
 
-        <activity android:name=".BluetoothRegister.BluetoothRequestActivity"></activity>
+        <activity android:name=".BluetoothRegister.BluetoothRequestActivity" />
+        <activity
+            android:name=".menu.MenuDevicesListActivity"
+            android:label="@string/title_activity_menu_devices_list"></activity>
     </application>
 
 </manifest>
