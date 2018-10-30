@@ -134,5 +134,6 @@ Proin euismod sit amet lectus et gravida. Nunc lorem dui, volutpat sed dui at, v
     <string name="title_registered_devices">Registrados</string>
     <string name="title_shared_devices">Compartidos</string>
     <string name="devices_list">Dispositivos</string>
+    <string name="add_bt_device">Agregar</string>
 
 </resources>

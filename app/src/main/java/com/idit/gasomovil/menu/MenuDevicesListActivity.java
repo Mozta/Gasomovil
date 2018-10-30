@@ -1,13 +1,18 @@
 package com.idit.gasomovil.menu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.idit.gasomovil.BluetoothRegister.BluetoothBannerActivity;
+import com.idit.gasomovil.MainActivity;
 import com.idit.gasomovil.R;
 
 public class MenuDevicesListActivity extends AppCompatActivity {
@@ -48,6 +53,27 @@ public class MenuDevicesListActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_add_device, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_device_menu:
+                Intent tutorial = new Intent(MenuDevicesListActivity.this, BluetoothBannerActivity.class);
+                startActivity(tutorial);
+                return true;
+            default:
+                Toast.makeText(this, "Error mortal", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+    }
+
+        @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         finish();
