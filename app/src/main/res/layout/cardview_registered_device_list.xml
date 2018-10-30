@@ -17,81 +17,97 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/imageView_device_item"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:tag="image_tag"
-                app:srcCompat="@drawable/ic_bluetooth_connected_black_24dp" />
-
+            android:orientation="vertical">
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_weight="2"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/name_device_item_txt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Device Name"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <TextView
-                    android:id="@+id/mac_device_item_txt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-
-                    android:text="MAC Address"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/date_device_item_txt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Date"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textSize="14sp" />
+                <ImageView
+                    android:id="@+id/imageView_device_item"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:tag="image_tag"
+                    app:srcCompat="@drawable/ic_bluetooth_connected_black_24dp" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_weight="2"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/name_device_item_txt"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginRight="8dp"
-                        android:text="Compartido"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="Device Name"
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                    <TextView
+                        android:id="@+id/mac_device_item_txt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+
+                        android:text="MAC Address"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/share_device_item_txt"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:id="@+id/date_device_item_txt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="N usuarios"
+                        android:text="Date"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginRight="8dp"
+                            android:text="Compartido"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/share_device_item_txt"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginLeft="8dp"
+                            android:layout_weight="1"
+                            android:text="N usuarios"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
                 </LinearLayout>
 
+
             </LinearLayout>
+
+            <Button
+                android:id="@+id/share_registered_device_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share" />
+
         </LinearLayout>
+
+
 
     </android.support.v7.widget.CardView>
 
