@@ -10,13 +10,13 @@ public class BluetoothModel {
 
     private static final String NAME_DEFAULT = "OBD Go Movil";
 
-    private static String _id;
-    private static String _mac;
-    private static String _name = NAME_DEFAULT;
+    private String _id;
+    private String _mac;
+    private String _name = NAME_DEFAULT;
 
-    private static String _create;
+    private String _create;
 
-    BluetoothModel(String id, String mac, String name) {
+    public BluetoothModel(String id, String mac, String name) {
         _id = id;
         _mac = mac;
 
@@ -28,36 +28,20 @@ public class BluetoothModel {
         _create = dateFormat.format(date);
     }
 
-    public static String get_id() {
+    public String get_id() {
         return _id;
     }
 
-    public static void set_id(String _id) {
-        BluetoothModel._id = _id;
-    }
-
-    public static String get_mac() {
+    public String get_mac() {
         return _mac;
     }
 
-    public static void set_mac(String _mac) {
-        BluetoothModel._mac = _mac;
-    }
-
-    public static String get_name() {
+    public String get_name() {
         return _name;
     }
 
-    public static void set_name(String _name) {
-        BluetoothModel._name = _name;
-    }
-
-    public static String get_create() {
+    public String get_create() {
         return _create;
-    }
-
-    public static void set_create(String _create) {
-        BluetoothModel._create = _create;
     }
 
     Map<String, Object> toMap() {
