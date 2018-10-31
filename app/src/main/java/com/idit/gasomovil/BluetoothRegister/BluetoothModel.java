@@ -11,68 +11,85 @@ public class BluetoothModel {
     private static final String NAME_DEFAULT = "OBD Go Movil";
     public  static final int MAX_SIZE = 3;
 
-    private String _mac;
-    private String _id;
-    private String _name = NAME_DEFAULT;
+    private String m;
+    private String i;
+    private String n = NAME_DEFAULT;
 
+    private String o;
+    private Map<String, Boolean> s;
+    private String c;
 
-
-    private String _owner;
-    private Map<String, Boolean> _share;
-    private String _create;
+    public BluetoothModel() {
+    }
 
     public BluetoothModel(String id, String mac, String name, String owner) {
-        _id = id;
-        _mac = mac;
-
+        i = id;
+        m = mac;
         if (!name.isEmpty())
-            _name = name;
-
-        _create = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-
-        _owner = owner;
-
-        _share = new HashMap<>();
-
+            n = name;
+        c = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+        o = owner;
+        s = new HashMap<>();
     }
 
-    public String get_id() {
-        return _id;
+
+    public String getM() {
+        return m;
     }
 
-    public String get_mac() {
-        return _mac;
+    public void setM(String m) {
+        this.m = m;
     }
 
-    public String get_name() {
-        return _name;
+    public String getI() {
+        return i;
     }
 
-    public String get_create() {
-        return _create;
+    public void setI(String i) {
+        this.i = i;
     }
 
-    public String get_owner() {
-        return _owner;
+    public String getN() {
+        return n;
     }
 
-    public Map<String, Boolean> get_share() {
-        return _share;
+    public void setN(String n) {
+        this.n = n;
     }
 
-    public void set_share(Map<String, Boolean> _share) {
-        this._share = _share;
+    public String getO() {
+        return o;
     }
 
-    Map<String, Object> toMap() {
+    public void setO(String o) {
+        this.o = o;
+    }
+
+    public Map<String, Boolean> getS() {
+        return s;
+    }
+
+    public void setS(Map<String, Boolean> s) {
+        this.s = s;
+    }
+
+    public String getC() {
+        return c;
+    }
+
+    public void setC(String c) {
+        this.c = c;
+    }
+
+    public Map<String, Object> toMap() {
 
         HashMap<String, Object> result = new HashMap<>();
-        result.put("i",_id);
-        result.put("m",_mac);
-        result.put("n",_name);
-        result.put("c", _create);
-        result.put("o", _owner);
-        result.put("s", _share);
+        result.put("i",i);
+        result.put("m",m);
+        result.put("n",n);
+        result.put("c",c);
+        result.put("o",o);
+        result.put("s",s);
         return result;
     }
 }

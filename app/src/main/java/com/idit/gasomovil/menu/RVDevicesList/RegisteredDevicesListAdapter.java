@@ -58,10 +58,10 @@ public class RegisteredDevicesListAdapter extends RecyclerView.Adapter<Registere
         TextView textViewUsers = holder.textViewUsers;
         ImageView imageView = holder.imageViewIcon;
 
-        textViewName.setText(dataSet.get(listPosition).get_name());
-        textViewMAC.setText(dataSet.get(listPosition).get_mac());
-        textViewDate.setText(dataSet.get(listPosition).get_create());
-        textViewUsers.setText("1");
+        textViewName.setText(dataSet.get(listPosition).getN());
+        textViewMAC.setText(dataSet.get(listPosition).getM());
+        textViewDate.setText(dataSet.get(listPosition).getC());
+        textViewUsers.setText(Integer.toString(dataSet.get(listPosition).getS().size()));
         //imageView.setImageResource(dataSet.get(listPosition).getImage());
     }
 

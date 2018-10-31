@@ -58,9 +58,9 @@ public class SharedDevicesListAdapter extends RecyclerView.Adapter<SharedDevices
         TextView textViewUsers = holder.textViewOwner;
         ImageView imageView = holder.imageViewIcon;
 
-        textViewName.setText(dataSet.get(listPosition).get_name());
-        textViewMAC.setText(dataSet.get(listPosition).get_mac());
-        textViewDate.setText(dataSet.get(listPosition).get_create());
+        textViewName.setText(dataSet.get(listPosition).getN());
+        textViewMAC.setText(dataSet.get(listPosition).getM());
+        textViewDate.setText(dataSet.get(listPosition).getC());
         textViewUsers.setText("Don papi");
         //imageView.setImageResource(dataSet.get(listPosition).getImage());
     }

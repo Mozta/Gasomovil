@@ -134,7 +134,7 @@ public class BluetoothFinishActivity extends Activity {
                                 Map<String,Boolean> aux = new HashMap<>();
                                 aux.put("zGmMNfI7Qxa4MqIjJPXBC9fzonj2", true);
                                 aux.put("ESKjkuvJBxQsKf8ux4MoiCtCAIq1", true);
-                                newBT.set_share(aux);
+                                newBT.setS(aux);
                                 bt_ref.setValue(true);
                                 device_bt_ref.setValue(newBT.toMap());
                             }catch (NullPointerException e){
