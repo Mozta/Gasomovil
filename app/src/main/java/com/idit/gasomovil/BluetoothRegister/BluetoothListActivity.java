@@ -144,7 +144,7 @@ public class BluetoothListActivity extends ListActivity {
                     intent.putExtra(BluetoothConfigActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
                     startActivity(intent);
                 }else
-                    device_ref.child(device.getAddress()).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
+                    device_ref.child(device.getAddress()).child("o").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Log.d("Valor",dataSnapshot.getValue().toString());

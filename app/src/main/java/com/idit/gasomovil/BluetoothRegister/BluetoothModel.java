@@ -9,23 +9,31 @@ import java.util.Map;
 public class BluetoothModel {
 
     private static final String NAME_DEFAULT = "OBD Go Movil";
+    public  static final int MAX_SIZE = 3;
 
-    private String _id;
     private String _mac;
+    private String _id;
     private String _name = NAME_DEFAULT;
 
+
+
+    private String _owner;
+    private Map<String, Boolean> _share;
     private String _create;
 
-    public BluetoothModel(String id, String mac, String name) {
+    public BluetoothModel(String id, String mac, String name, String owner) {
         _id = id;
         _mac = mac;
 
         if (!name.isEmpty())
             _name = name;
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        _create = dateFormat.format(date);
+        _create = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+
+        _owner = owner;
+
+        _share = new HashMap<>();
+
     }
 
     public String get_id() {
@@ -44,12 +52,27 @@ public class BluetoothModel {
         return _create;
     }
 
+    public String get_owner() {
+        return _owner;
+    }
+
+    public Map<String, Boolean> get_share() {
+        return _share;
+    }
+
+    public void set_share(Map<String, Boolean> _share) {
+        this._share = _share;
+    }
+
     Map<String, Object> toMap() {
+
         HashMap<String, Object> result = new HashMap<>();
-        result.put("id",_id);
-        result.put("mac",_mac);
-        result.put("name",_name);
-        result.put("create", _create);
+        result.put("i",_id);
+        result.put("m",_mac);
+        result.put("n",_name);
+        result.put("c", _create);
+        result.put("o", _owner);
+        result.put("s", _share);
         return result;
     }
 }

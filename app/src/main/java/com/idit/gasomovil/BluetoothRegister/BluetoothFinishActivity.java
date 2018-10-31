@@ -24,6 +24,7 @@ import com.idit.gasomovil.BluetoothService.BluetoothLeService;
 import com.idit.gasomovil.MainActivity;
 import com.idit.gasomovil.R;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BluetoothFinishActivity extends Activity {
@@ -125,15 +126,17 @@ public class BluetoothFinishActivity extends Activity {
                 final DatabaseReference bt_ref = device_ref.child(mDeviceAddress);
                 final DatabaseReference device_bt_ref = ref.child("Device").child(mDeviceAddress);
                 ValueEventListener e = new ValueEventListener() {
-                    BluetoothModel newBT = new BluetoothModel(mDeviceId,mDeviceAddress,mDeviceName);
+                    BluetoothModel newBT = new BluetoothModel(mDeviceId,mDeviceAddress,mDeviceName,userID);
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(!dataSnapshot.exists()){
                             try{
-                                bt_ref.setValue(newBT.toMap());
-                                Map aux = newBT.toMap();
-                                aux.put("owner",userID);
-                                device_bt_ref.setValue(aux);
+                                Map<String,Boolean> aux = new HashMap<>();
+                                aux.put("zGmMNfI7Qxa4MqIjJPXBC9fzonj2", true);
+                                aux.put("ESKjkuvJBxQsKf8ux4MoiCtCAIq1", true);
+                                newBT.set_share(aux);
+                                bt_ref.setValue(true);
+                                device_bt_ref.setValue(newBT.toMap());
                             }catch (NullPointerException e){
                                 Log.d(TAG, "Se ha borrado un dispositivo");
                             }

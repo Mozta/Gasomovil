@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.idit.gasomovil.BluetoothRegister.BluetoothModel;
 import com.idit.gasomovil.R;
 
@@ -66,7 +67,8 @@ public class RegisteredDevicesFragment extends Fragment {
             data.add(new BluetoothModel(
                     DataDummy.idArray[i],
                     DataDummy.macArray[i],
-                    DataDummy.nameArray[i]
+                    DataDummy.nameArray[i],
+                    FirebaseAuth.getInstance().getCurrentUser().getUid()
             ));
         }
 
