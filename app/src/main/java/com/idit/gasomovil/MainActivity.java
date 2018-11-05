@@ -365,9 +365,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
-
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 if (!mBluetoothAdapter.isEnabled()) {
                     //isLaterCharge = true;
                     MainActivity.recargue = true;
@@ -375,41 +374,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     //mCMDPointer = 1;
                     //sendFuelTankCommands();
 
-                // TODO iniciar bluetooth, conectar con HM10, recibir información de "name_station", "key_station", "my_key", "averageLts", ltsAntesdeCarga, ltsCargados
+                    // TODO iniciar bluetooth, conectar con HM10, recibir información de "name_station", "key_station", "my_key", "averageLts", ltsAntesdeCarga, ltsCargados
 
-                if (!mBluetoothAdapter.isEnabled()) {
                     if (!mBluetoothAdapter.isEnabled()) {
-                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                        if (!mBluetoothAdapter.isEnabled()) {
+                            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                        }
+                    } else {
+                        Bundle args = new Bundle();
+                        // Colocamos el String
+                        args.putString("name_station", model.name);
+                        args.putString("key_station", model.getKey());
+                        //args.putString("my_key", my_key);
+                        Double ltsCargados = averageLts - ltsAntesdeCarga;
+                        Log.e("mio", "Litros antes: " + String.valueOf(ltsAntesdeCarga));
+                        Log.e("mio", "Litros despues: " + String.valueOf(averageLts));
+                        Log.e("mio", "En total: " + String.valueOf(ltsCargados));
+                        args.putString("averageLts", String.valueOf(ltsCargados));
+
+                        //Initializing a bottom sheet
+                        bottomSheetDialogFragment_preload = new CustomBottomSheetDialogFragmentCarga();
+
+                        bottomSheetDialogFragment_preload.setArguments(args);
+                        //show it
+                        bottomSheetDialogFragment_preload.show(getSupportFragmentManager(), bottomSheetDialogFragment_preload.getTag());
+
+                        bottomSheetDialogFragment_preload.setCancelable(true);
+
+                        finish_chargue = true;
                     }
-                }else{
-                    Bundle args = new Bundle();
-                    // Colocamos el String
-                    args.putString("name_station", model.name);
-                    args.putString("key_station", model.getKey());
-                    //args.putString("my_key", my_key);
-                    Double ltsCargados = averageLts-ltsAntesdeCarga;
-                    Log.e("mio", "Litros antes: "+String.valueOf(ltsAntesdeCarga));
-                    Log.e("mio", "Litros despues: "+String.valueOf(averageLts));
-                    Log.e("mio", "En total: "+String.valueOf(ltsCargados));
-                    args.putString("averageLts", String.valueOf(ltsCargados));
 
-                    //Initializing a bottom sheet
-                    bottomSheetDialogFragment_preload = new CustomBottomSheetDialogFragmentCarga();
-
-                    bottomSheetDialogFragment_preload.setArguments(args);
-                    //show it
-                    bottomSheetDialogFragment_preload.show(getSupportFragmentManager(), bottomSheetDialogFragment_preload.getTag());
-
-                    bottomSheetDialogFragment_preload.setCancelable(true);
-
-                    finish_chargue = true;
+                    Snackbar.make(v, "[Aqui va la conexión a bluetooth] Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
-
-                Snackbar.make(view, "[Aqui va la conexión a bluetooth] Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
+
+
         fab.setVisibility(View.VISIBLE);
 
         // TODO se deja visible para pruebas de Bluetooth

@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,7 +19,11 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Init Firebase Auth
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        try{
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        }catch (RuntimeException e){
+            Log.e("ERROR", e.getMessage());
+        }
         mAuth = FirebaseAuth.getInstance();
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -38,4 +43,5 @@ public class SplashActivity extends AppCompatActivity {
             }
         }, DURATION_SPLASH);
     }
+
 }
