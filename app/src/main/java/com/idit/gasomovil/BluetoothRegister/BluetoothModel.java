@@ -9,63 +9,87 @@ import java.util.Map;
 public class BluetoothModel {
 
     private static final String NAME_DEFAULT = "OBD Go Movil";
+    public  static final int MAX_SIZE = 3;
 
-    private static String _id;
-    private static String _mac;
-    private static String _name = NAME_DEFAULT;
+    private String m;
+    private String i;
+    private String n = NAME_DEFAULT;
 
-    private static String _create;
+    private String o;
+    private Map<String, Boolean> s;
+    private String c;
 
-    BluetoothModel(String id, String mac, String name) {
-        _id = id;
-        _mac = mac;
+    public BluetoothModel() {
+    }
 
+    public BluetoothModel(String id, String mac, String name, String owner) {
+        i = id;
+        m = mac;
         if (!name.isEmpty())
-            _name = name;
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        _create = dateFormat.format(date);
+            n = name;
+        c = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+        o = owner;
+        s = new HashMap<>();
     }
 
-    public static String get_id() {
-        return _id;
+
+    public String getM() {
+        return m;
     }
 
-    public static void set_id(String _id) {
-        BluetoothModel._id = _id;
+    public void setM(String m) {
+        this.m = m;
     }
 
-    public static String get_mac() {
-        return _mac;
+    public String getI() {
+        return i;
     }
 
-    public static void set_mac(String _mac) {
-        BluetoothModel._mac = _mac;
+    public void setI(String i) {
+        this.i = i;
     }
 
-    public static String get_name() {
-        return _name;
+    public String getN() {
+        return n;
     }
 
-    public static void set_name(String _name) {
-        BluetoothModel._name = _name;
+    public void setN(String n) {
+        this.n = n;
     }
 
-    public static String get_create() {
-        return _create;
+    public String getO() {
+        return o;
     }
 
-    public static void set_create(String _create) {
-        BluetoothModel._create = _create;
+    public void setO(String o) {
+        this.o = o;
     }
 
-    Map<String, Object> toMap() {
+    public Map<String, Boolean> getS() {
+        return s;
+    }
+
+    public void setS(Map<String, Boolean> s) {
+        this.s = s;
+    }
+
+    public String getC() {
+        return c;
+    }
+
+    public void setC(String c) {
+        this.c = c;
+    }
+
+    public Map<String, Object> toMap() {
+
         HashMap<String, Object> result = new HashMap<>();
-        result.put("id",_id);
-        result.put("mac",_mac);
-        result.put("name",_name);
-        result.put("create", _create);
+        result.put("i",i);
+        result.put("m",m);
+        result.put("n",n);
+        result.put("c",c);
+        result.put("o",o);
+        result.put("s",s);
         return result;
     }
 }

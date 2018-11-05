@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_registered_devices"
+        android:icon="@drawable/ic_bluetooth_connected_black_24dp"
+        android:title="@string/title_registered_devices" />
+
+    <item
+        android:id="@+id/navigation_shared_devices"
+        android:icon="@drawable/ic_share_black_24dp"
+        android:title="@string/title_shared_devices" />
+
+</menu>

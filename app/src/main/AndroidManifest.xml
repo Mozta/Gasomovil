@@ -76,22 +76,35 @@
             android:name=".menu.MenuDiagnosisActivity"
             android:label="@string/title_activity_menu_diagnosis" />
         <activity
+            android:name=".menu.MenuDevicesListActivity"
+            android:label="@string/title_activity_menu_devices_list"
+            android:parentActivityName=".MainActivity"/>
+        <activity
             android:name=".menu.MenuHelpActivity"
             android:label="@string/title_activity_menu_help" />
         <activity
             android:name=".menu.MenuSettingsActivity"
             android:label="@string/title_activity_menu_settings"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".BluetoothRegister.BluetoothBannerActivity" />
-        <activity android:name=".BluetoothRegister.BluetoothListActivity" />
-        <activity android:name=".BluetoothRegister.BluetoothConfigActivity" />
-        <activity android:name=".BluetoothRegister.BluetoothFinishActivity" />
+        <activity
+            android:name=".BluetoothRegister.BluetoothBannerActivity"
+            android:parentActivityName=".menu.MenuDevicesListActivity"/>
+        <activity
+            android:name=".BluetoothRegister.BluetoothListActivity"
+            android:parentActivityName=".BluetoothRegister.BluetoothBannerActivity"/>
+        <activity
+            android:name=".BluetoothRegister.BluetoothConfigActivity"
+            android:parentActivityName=".BluetoothRegister.BluetoothListActivity"/>
+        <activity
+            android:name=".BluetoothRegister.BluetoothRequestActivity"
+            android:parentActivityName=".BluetoothRegister.BluetoothListActivity"/>
+        <activity
+            android:name=".BluetoothRegister.BluetoothFinishActivity"
+            android:parentActivityName=".BluetoothRegister.BluetoothConfigActivity"/>
 
         <service
             android:name=".BluetoothService.BluetoothLeService"
             android:enabled="true" />
-
-        <activity android:name=".BluetoothRegister.BluetoothRequestActivity"></activity>
     </application>
 
 </manifest>
