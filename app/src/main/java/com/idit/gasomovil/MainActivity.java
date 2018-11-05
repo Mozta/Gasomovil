@@ -160,10 +160,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     Marker mCurrent;
 
+    private BottomSheetDialogFragment bottomSheetDialogFragment_preload;
+
     private TextView textUsername;
     private ImageView imageView;
     private FloatingActionButton fab, fab2;
     private String number_panic = "2441216481";
+
+    public boolean finish_chargue;
 
     //BottomInfo
     TextView imgExpandable;
@@ -356,12 +360,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             window.setStatusBarColor(Color.TRANSPARENT);
         }
 
+        finish_chargue = false;
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
+                if (!mBluetoothAdapter.isEnabled()) {
+                    //isLaterCharge = true;
+                    MainActivity.recargue = true;
+                    //tankBeforeCharge = true;
+                    //mCMDPointer = 1;
+                    //sendFuelTankCommands();
 
                 // TODO iniciar bluetooth, conectar con HM10, recibir información de "name_station", "key_station", "my_key", "averageLts", ltsAntesdeCarga, ltsCargados
 
@@ -383,19 +395,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     args.putString("averageLts", String.valueOf(ltsCargados));
 
                     //Initializing a bottom sheet
-                    BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragmentCarga();
+                    bottomSheetDialogFragment_preload = new CustomBottomSheetDialogFragmentCarga();
 
-                    bottomSheetDialogFragment.setArguments(args);
+                    bottomSheetDialogFragment_preload.setArguments(args);
                     //show it
-                    bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+                    bottomSheetDialogFragment_preload.show(getSupportFragmentManager(), bottomSheetDialogFragment_preload.getTag());
 
-                    bottomSheetDialogFragment.setCancelable(true);
+                    bottomSheetDialogFragment_preload.setCancelable(true);
+
+                    finish_chargue = true;
                 }
 
                 Snackbar.make(view, "[Aqui va la conexión a bluetooth] Llenando tanque de combustible...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
+        fab.setVisibility(View.VISIBLE);
 
         // TODO se deja visible para pruebas de Bluetooth
         //fab.setVisibility(View.INVISIBLE);

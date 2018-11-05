@@ -4,16 +4,21 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +42,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
     int max_tank;
     float lts_actual, tank;
     TextView textCharge_actual, textCharge_faltante;
+    Button btn_register_charge,btn_stop_charge;
     Slidr slidr0;
 
     private double amount;
@@ -50,6 +56,10 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
     String name_station, key_station;
     double averageLts;
 
+    Animation slideUp, slideDown;
+
+    private ProgressBar progressBar_loading;
+    Integer counter = 1;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,7 +97,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         ref_fuel_station_service.child(serviceID).child("timestamp").setValue(System.currentTimeMillis()/1000);
 
 
-
+        slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+        slideDown = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
 
     }
 
@@ -187,21 +198,62 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         });
 
 
+        btn_register_charge = (Button)contentView.findViewById(R.id.register_charge);
+        btn_stop_charge = (Button)contentView.findViewById(R.id.stop_charge);
+        progressBar_loading = (ProgressBar) contentView.findViewById(R.id.progressBar_loading);
 
-
-        Button btnSaveCharge = (Button)contentView.findViewById(R.id.save_comment);
-        btnSaveCharge.setOnClickListener(new View.OnClickListener() {
+        btn_register_charge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                float i = lts_actual;
+                //TODO: Llamar al metodo para inyeccion de codigo al OBD para obtener la cantidad de combustible
 
-                while (i < max_tank){
-                    i = (float) (i+0.00001);
-                }
+                btn_register_charge.startAnimation(slideDown);
+                btn_register_charge.setVisibility(View.GONE);
 
-                //dismiss();
+                counter = 1;
+                progressBar_loading.setVisibility(View.VISIBLE);
+                progressBar_loading.setProgress(0);
+                new MyAsyncTask().execute(10);
+
+                btn_stop_charge.startAnimation(slideUp);
+                btn_stop_charge.setVisibility(View.VISIBLE);
             }
         });
 
+        btn_stop_charge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+    }
+
+    class MyAsyncTask extends AsyncTask<Integer, Integer, String> {
+        @Override
+        protected String doInBackground(Integer... params) {
+            for (; counter <= params[0]; counter++) {
+                try {
+                    Thread.sleep(1000);
+                    publishProgress(counter);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return "Tarea completa!. =)";
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            //progressBar_loading.setVisibility(View.GONE);
+            //Toast.makeText(getContext(), String.valueOf(counter), Toast.LENGTH_SHORT).show();
+        }
+        @Override
+        protected void onPreExecute() {
+
+        }
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            //progressBar_loading.setProgress(values[0]);
+            slidr0.setCurrentValue(lts_actual+values[0]);
+        }
     }
 }
