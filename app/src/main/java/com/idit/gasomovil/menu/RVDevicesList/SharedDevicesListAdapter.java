@@ -7,6 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.BluetoothRegister.BluetoothModel;
 import com.idit.gasomovil.R;
 
@@ -55,13 +60,25 @@ public class SharedDevicesListAdapter extends RecyclerView.Adapter<SharedDevices
         TextView textViewName = holder.textViewName;
         TextView textViewMAC = holder.textViewMAC;
         TextView textViewDate = holder.textViewDate;
-        TextView textViewUsers = holder.textViewOwner;
+        final TextView textViewUsers = holder.textViewOwner;
         ImageView imageView = holder.imageViewIcon;
 
         textViewName.setText(dataSet.get(listPosition).getN());
         textViewMAC.setText(dataSet.get(listPosition).getM());
         textViewDate.setText(dataSet.get(listPosition).getC());
-        textViewUsers.setText(dataSet.get(listPosition).getO());
+
+        DatabaseReference owner = FirebaseDatabase.getInstance().getReference().child("User").child(dataSet.get(listPosition).getO()).child("email");
+        owner.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                textViewUsers.setText(dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         //imageView.setImageResource(dataSet.get(listPosition).getImage());
     }
 

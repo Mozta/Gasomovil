@@ -142,7 +142,7 @@ public class SharedDevicesFragment extends Fragment {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             BluetoothModel btremove = dataSnapshot.getValue(BluetoothModel.class);
                             if (btremove != null){
-                                Log.w("Bluetoothdeshabilitado", btremove.toMap().toString());
+                                Log.w("BtdeshabilitadoShare", btremove.toMap().toString());
                                 for (BluetoothModel bt : data)
                                     if (bt.getM().equals(btremove.getM())) data.remove(bt);
                                 adapter.notifyDataSetChanged();
@@ -163,7 +163,8 @@ public class SharedDevicesFragment extends Fragment {
                             if (btrenew != null){
                                 for (BluetoothModel bt : data)
                                     if (bt.getM().equals(btrenew.getM())) data.remove(bt);
-                                data.add(btrenew);
+                                if(btrenew.getS().get(userID))
+                                    data.add(btrenew);
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -179,6 +180,10 @@ public class SharedDevicesFragment extends Fragment {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.w("Dispositivos", "Se elimina dispositivo");
+                for (BluetoothModel bt : data)
+                    if (bt.getM().equals(dataSnapshot.getKey()))
+                        data.remove(bt);
+                adapter.notifyDataSetChanged();
             }
 
             @Override

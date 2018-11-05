@@ -252,13 +252,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+
         ref = FirebaseDatabase.getInstance().getReference("User").child(userID);
+        ref.keepSynced(true);
 
         result = new ArrayList<>();
 
         ref_fuel_station = FirebaseDatabase.getInstance().getReference("Stations");
 
         device_ref = ref.child("Device");
+        device_ref.keepSynced(true);
 
         System.out.println(ref_fuel_station);
 

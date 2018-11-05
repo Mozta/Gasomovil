@@ -31,6 +31,7 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class RegisteredDevicesFragment extends Fragment {
+    private static final String TAG = "RegisteredDevices";
 
     public static final String DEVICE_FIREBASE = "Device";
 
@@ -103,6 +104,7 @@ public class RegisteredDevicesFragment extends Fragment {
                                 if(Objects.equals(dataSnapshot.child("o").getValue(), userID)){
                                     for (BluetoothModel bt : data)
                                         if (bt.getM().equals(macaddres)) data.remove(bt);
+                                    Log.w(TAG,"Se agrega dispositivo a lista");
                                     data.add(addBT);
                                     adapter.notifyDataSetChanged();
                                 }
@@ -169,7 +171,7 @@ public class RegisteredDevicesFragment extends Fragment {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             BluetoothModel btrenew = dataSnapshot.getValue(BluetoothModel.class);
                             if (btrenew != null){
-                                Log.w("Bluetoothdeshabilitado", btrenew.toMap().toString());
+                                Log.w("BtdeshabilitadoRegister", btrenew.toMap().toString());
                                 for (BluetoothModel bt : data)
                                     if (bt.getM().equals(btrenew.getM())) data.remove(bt);
                                 data.add(btrenew);
