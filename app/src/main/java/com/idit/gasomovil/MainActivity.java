@@ -311,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }else {
                     // Toolbar :: Transparent
                     toolbar.setBackgroundColor(Color.TRANSPARENT);
+                    toolbar.setTitle("");
                 }
             }
 

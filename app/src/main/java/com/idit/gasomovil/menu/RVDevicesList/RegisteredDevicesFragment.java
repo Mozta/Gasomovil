@@ -35,11 +35,10 @@ public class RegisteredDevicesFragment extends Fragment {
     public static final String DEVICE_FIREBASE = "Device";
 
     private static RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private RecyclerView recyclerView;
     private static ArrayList<BluetoothModel> data;
 
-    private DatabaseReference ref, devices_bt_ref, user_ref, user_bt_ref;
+    private DatabaseReference devices_bt_ref;
+    private DatabaseReference user_bt_ref;
     private String userID;
 
     public RegisteredDevicesFragment() {
@@ -56,59 +55,56 @@ public class RegisteredDevicesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        ref = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
-        user_ref = ref.child("User").child(userID);
+        DatabaseReference user_ref = ref.child("User").child(userID);
         user_bt_ref = user_ref.child(DEVICE_FIREBASE);
 
         devices_bt_ref = ref.child(DEVICE_FIREBASE);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        addDevices();
+        getDevices();
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_registered_devices, container, false);
 
-        recyclerView = v.findViewById(R.id.rv_registered_device_list);
+        RecyclerView recyclerView = v.findViewById(R.id.rv_registered_device_list);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        data = new ArrayList<BluetoothModel>();
+        data = new ArrayList<>();
 
         adapter = new RegisteredDevicesListAdapter(data);
+
         recyclerView.setAdapter(adapter);
 
         return v;
     }
 
-    private void addDevices(){
+    private void getDevices(){
         // Firebase Query
         user_bt_ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if(dataSnapshot.exists()){
-                    Log.w("Dispositivos","Se agrega dispositivo");
                     final String macaddres = dataSnapshot.getKey();
                     if(Objects.equals(dataSnapshot.getValue(), true)){
                         // Dispositivos permitidos
                         devices_bt_ref.child(macaddres).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                BluetoothModel addBT = dataSnapshot.getValue(BluetoothModel.class);
                                 if(Objects.equals(dataSnapshot.child("o").getValue(), userID)){
-                                    BluetoothModel addBT = dataSnapshot.getValue(BluetoothModel.class);
                                     for (BluetoothModel bt : data)
                                         if (bt.getM().equals(macaddres)) data.remove(bt);
                                     data.add(addBT);
                                     adapter.notifyDataSetChanged();
-                                }else{
-                                    Log.d("MAC","es prestado");
                                 }
                             }
 
@@ -118,6 +114,22 @@ public class RegisteredDevicesFragment extends Fragment {
                             }
                         });
                     }else{
+                        devices_bt_ref.child(macaddres).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                BluetoothModel addBT = dataSnapshot.getValue(BluetoothModel.class);
+                                if(Objects.equals(dataSnapshot.child("o").getValue(), userID)){
+                                    for (BluetoothModel bt : data)
+                                        if (bt.getM().equals(macaddres)) data.remove(bt);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                         // Dispositivos no permitidos
                         //  TODO Analizar que hacer con los no permitidos
                     }
@@ -130,11 +142,55 @@ public class RegisteredDevicesFragment extends Fragment {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.w("Dispositivos", "Se modifica dispositivo");
+                Log.w("Dispositivos", dataSnapshot.toString());
+                if (Objects.equals(dataSnapshot.getValue(), false)){
+                    String macremove = dataSnapshot.getKey();
+                    devices_bt_ref.child(macremove).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            BluetoothModel btremove = dataSnapshot.getValue(BluetoothModel.class);
+                            if (btremove != null){
+                                Log.w("Bluetoothdeshabilitado", btremove.toMap().toString());
+                                for (BluetoothModel bt : data)
+                                    if (bt.getM().equals(btremove.getM())) data.remove(bt);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }else{
+                    String macrenew = dataSnapshot.getKey();
+                    devices_bt_ref.child(macrenew).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            BluetoothModel btrenew = dataSnapshot.getValue(BluetoothModel.class);
+                            if (btrenew != null){
+                                Log.w("Bluetoothdeshabilitado", btrenew.toMap().toString());
+                                for (BluetoothModel bt : data)
+                                    if (bt.getM().equals(btrenew.getM())) data.remove(bt);
+                                data.add(btrenew);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.w("Dispositivos", "Se elimina dispositivo");
+                for (BluetoothModel bt : data)
+                    if (bt.getM().equals(dataSnapshot.getKey()))
+                        data.remove(bt);
+                adapter.notifyDataSetChanged();
             }
 
             @Override

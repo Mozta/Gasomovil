@@ -65,8 +65,6 @@ public class MenuDevicesListActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = findViewById(R.id.navigation_list);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-
     }
 
     @Override
@@ -96,5 +94,4 @@ public class MenuDevicesListActivity extends AppCompatActivity {
         finish();
         return false;
     }
-
 }
