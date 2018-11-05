@@ -1,6 +1,5 @@
 package com.idit.gasomovil.menu.RVDevicesList;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,7 +26,6 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link RegisteredDevicesFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link RegisteredDevicesFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -40,8 +38,6 @@ public class RegisteredDevicesFragment extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView recyclerView;
     private static ArrayList<BluetoothModel> data;
-
-    private OnFragmentInteractionListener mListener;
 
     private DatabaseReference ref, devices_bt_ref, user_ref, user_bt_ref;
     private String userID;
@@ -86,32 +82,10 @@ public class RegisteredDevicesFragment extends Fragment {
 
         data = new ArrayList<BluetoothModel>();
 
-
-
-        /*for (int i = 0; i < DataDummy.nameArray.length; i++) {
-            data.add(new BluetoothModel(
-                    DataDummy.idArray[i],
-                    DataDummy.macArray[i],
-                    DataDummy.nameArray[i],
-                    FirebaseAuth.getInstance().getCurrentUser().getUid()
-            ));
-        }*/
-
         adapter = new RegisteredDevicesListAdapter(data);
         recyclerView.setAdapter(adapter);
 
         return v;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 
     private void addDevices(){
@@ -121,14 +95,16 @@ public class RegisteredDevicesFragment extends Fragment {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if(dataSnapshot.exists()){
                     Log.w("Dispositivos","Se agrega dispositivo");
-                    String macaddres = dataSnapshot.getKey();
+                    final String macaddres = dataSnapshot.getKey();
                     if(Objects.equals(dataSnapshot.getValue(), true)){
                         // Dispositivos permitidos
-                        devices_bt_ref.child(macaddres).addListenerForSingleValueEvent(new ValueEventListener() {
+                        devices_bt_ref.child(macaddres).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(Objects.equals(dataSnapshot.child("o").getValue(), userID)){
                                     BluetoothModel addBT = dataSnapshot.getValue(BluetoothModel.class);
+                                    for (BluetoothModel bt : data)
+                                        if (bt.getM().equals(macaddres)) data.remove(bt);
                                     data.add(addBT);
                                     adapter.notifyDataSetChanged();
                                 }else{
