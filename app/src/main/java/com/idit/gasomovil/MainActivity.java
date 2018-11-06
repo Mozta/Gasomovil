@@ -108,8 +108,10 @@ import com.idit.gasomovil.menu.MenuSettingsActivity;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -241,6 +243,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton mBtnSend;
     private Button mCargar;
 
+    private String mDeviceAddress;
+
     // Variable def
     private static boolean inSimulatorMode = false;
     private static StringBuilder mSbCmdResp;
@@ -294,20 +298,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        device_ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()){
-                    Intent tutorial = new Intent(MainActivity.this, BluetoothBannerActivity.class);
-                    startActivity(tutorial);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         device_ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -367,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mBluetoothAdapter.isEnabled()) {
+                if (mBluetoothAdapter.isEnabled()) {
                     //isLaterCharge = true;
                     MainActivity.recargue = true;
                     //tankBeforeCharge = true;
@@ -386,6 +376,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         // Colocamos el String
                         args.putString("name_station", model.name);
                         args.putString("key_station", model.getKey());
+                        if (mDeviceAddress!= null){
+                            args.putString("DEVICE_ADDRESS", mDeviceAddress);
+                        }
                         //args.putString("my_key", my_key);
                         Double ltsCargados = averageLts - ltsAntesdeCarga;
                         Log.e("mio", "Litros antes: " + String.valueOf(ltsAntesdeCarga));
@@ -640,6 +633,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart(){
         super.onStart();
+        device_ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+                    Intent tutorial = new Intent(MainActivity.this, BluetoothBannerActivity.class);
+                    startActivity(tutorial);
+                }else{
+                    Map<String, Object> children = new HashMap<>();
+                    for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
+                        if((Boolean) postSnapshot.getValue()){
+                            children.put(postSnapshot.getKey(),postSnapshot.getValue());
+                            mDeviceAddress = postSnapshot.getKey();
+                        }
+                    }
+                    Log.w("MACHijos",children.toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 

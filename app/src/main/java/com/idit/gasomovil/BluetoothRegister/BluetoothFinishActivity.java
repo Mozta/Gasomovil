@@ -131,10 +131,6 @@ public class BluetoothFinishActivity extends Activity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(!dataSnapshot.exists()){
                             try{
-                                Map<String,Boolean> aux = new HashMap<>();
-                                aux.put("zGmMNfI7Qxa4MqIjJPXBC9fzonj2", true);
-                                aux.put("ESKjkuvJBxQsKf8ux4MoiCtCAIq1", true);
-                                newBT.setS(aux);
                                 bt_ref.setValue(true);
                                 device_bt_ref.setValue(newBT.toMap());
                             }catch (NullPointerException e){

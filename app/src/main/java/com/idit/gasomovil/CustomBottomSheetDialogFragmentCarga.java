@@ -2,10 +2,17 @@ package com.idit.gasomovil;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -17,6 +24,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
@@ -30,18 +38,40 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.idit.gasomovil.BluetoothService.BluetoothLeService;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import static android.content.Context.BIND_AUTO_CREATE;
+import static com.google.android.gms.internal.zzahn.runOnUiThread;
 
 /**
  * Created by viper on 12/12/2017.
  */
 
 public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragment {
+
+    private final static String TAG = CustomBottomSheetDialogFragmentCarga.class.getSimpleName();
+
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+    private TextView mConnectionState;
+    private TextView mDataField;
+    private String mDeviceName;
+    private String mDeviceAddress;
+    private ExpandableListView mGattServicesList;
+    private BluetoothLeService mBluetoothLeService;
+    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
+            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+    private boolean mConnected = false;
+    private BluetoothGattCharacteristic mNotifyCharacteristic;
+
     private ImageButton share_charge;
     int max_tank;
     float lts_actual, tank;
-    TextView textCharge_actual, textCharge_faltante;
+    TextView textCharge_actual, textCharge_faltante, textConnect, textDisconnect;
     Button btn_register_charge,btn_stop_charge;
     Slidr slidr0;
 
@@ -61,15 +91,82 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
     private ProgressBar progressBar_loading;
     Integer counter = 1;
 
+    // Code to manage Service lifecycle.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Error al conectar");
+            }
+            // Automatically connects to the device upon successful start-up initialization.
+            Log.d(TAG,"Se conecta a dispositivo");
+
+            boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            if (result){
+                Log.e(TAG, "Connect request result=" + result);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBluetoothLeService = null;
+        }
+    };
+
+    // Handles various events fired by the Service.
+    // ACTION_GATT_CONNECTED: connected to a GATT server.
+    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
+    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
+    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
+    //                        or notification operations.
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                updateConnectionState(true);
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                updateConnectionState(false);
+            }
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getContext().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (mBluetoothLeService != null) {
+            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Connect request result=" + result);
+        }
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         name_station = getArguments().getString("name_station");
         key_station = getArguments().getString("key_station");
         my_key = getArguments().getString("my_key");
+        mDeviceAddress = getArguments().getString(EXTRAS_DEVICE_ADDRESS);
+
+        Intent gattServiceIntent = new Intent(getContext(), BluetoothLeService.class);
+
+        if(getContext().bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)){
+            Log.d(TAG,"Se crea servicio");
+            Toast.makeText(getContext(), "Se crea servicio", Toast.LENGTH_SHORT).show();
+        }else{
+            Log.e(TAG,"Nel perro");
+            Toast.makeText(getContext(), "Revisa tu conexión Bluetooth", Toast.LENGTH_SHORT).show();
+        }
+
         averageLts = Double.parseDouble(getArguments().getString("averageLts"));
         //averageLts = Integer.parseInt(getArguments().getString("averageLts"));
 
@@ -85,7 +182,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         ref_fuel_station_price.child("magna").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                double price_fuel = (double) dataSnapshot.getValue();
+                Long price_fuel = (Long) dataSnapshot.getValue();
                 ref_fuel_station_service.child(serviceID).child("price").setValue(price_fuel * averageLts);
             }
 
@@ -116,6 +213,14 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         }
     };
 
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getContext().unbindService(mServiceConnection);
+        mBluetoothLeService = null;
+    }
+
     @SuppressLint("RestrictedApi")
     @Override
     public void setupDialog(Dialog dialog, int style) {
@@ -131,6 +236,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
 
         textCharge_actual = contentView.findViewById(R.id.textCharge_actual);
         textCharge_faltante = contentView.findViewById(R.id.textCharge_faltante);
+        textConnect = contentView.findViewById(R.id.connect_bt_txt);
+        textDisconnect = contentView.findViewById(R.id.disconnect_bt_txt);
         slidr0 = (Slidr) contentView.findViewById(R.id.slideure);
 
         max_tank = 45;
@@ -255,5 +362,29 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
             //progressBar_loading.setProgress(values[0]);
             slidr0.setCurrentValue(lts_actual+values[0]);
         }
+    }
+
+    private void updateConnectionState(final Boolean conn) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (conn){
+                    textConnect.setVisibility(View.VISIBLE);
+                    textDisconnect.setVisibility(View.GONE);
+                }else{
+                    textDisconnect.setVisibility(View.VISIBLE);
+                    textConnect.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 }
