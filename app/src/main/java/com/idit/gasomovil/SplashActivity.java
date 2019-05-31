@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -18,8 +19,10 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
         //Init Firebase Auth
         try{
+
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         }catch (RuntimeException e){
             Log.e("ERROR", e.getMessage());

@@ -22,7 +22,7 @@
             android:layout_weight="1"
             android:background="@color/colorAccent"
             android:text="Conectado"
-            android:textColor="@color/cast_expanded_controller_text_color"
+            android:textColor="@color/colorGray"
             android:textSize="24sp"
             android:visibility="gone" />
 
@@ -33,9 +33,9 @@
             android:layout_weight="1"
             android:background="@color/colorPremium"
             android:text="Desconectado"
-            android:textColor="@color/cast_expanded_controller_text_color"
+            android:textColor="@color/colorDiesel"
             android:textSize="24sp"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </LinearLayout>
 
     <RelativeLayout

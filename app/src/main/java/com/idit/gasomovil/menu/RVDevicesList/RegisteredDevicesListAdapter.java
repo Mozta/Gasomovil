@@ -1,6 +1,7 @@
 package com.idit.gasomovil.menu.RVDevicesList;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +63,11 @@ public class RegisteredDevicesListAdapter extends RecyclerView.Adapter<Registere
         textViewName.setText(dataSet.get(listPosition).getN());
         textViewMAC.setText(dataSet.get(listPosition).getM());
         textViewDate.setText(dataSet.get(listPosition).getC());
-        textViewUsers.setText(Integer.toString(dataSet.get(listPosition).getS().size()));
+        try{
+            textViewUsers.setText(Integer.toString(dataSet.get(listPosition).getS().size()));
+        }catch(Exception e){
+            Log.d("Dispositivos", "no esta compartido");
+        }
         //imageView.setImageResource(dataSet.get(listPosition).getImage());
     }
 

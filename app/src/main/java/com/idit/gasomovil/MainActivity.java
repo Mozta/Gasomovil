@@ -11,10 +11,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -22,8 +20,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,7 +42,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,16 +62,14 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -96,7 +89,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.idit.gasomovil.BluetoothRegister.BluetoothBannerActivity;
 import com.idit.gasomovil.BottomSheet.GoogleMapsBottomSheetBehavior;
-import com.idit.gasomovil.Model.Item;
 import com.idit.gasomovil.Utility.MyLog;
 import com.idit.gasomovil.menu.MenuDevicesListActivity;
 import com.idit.gasomovil.menu.MenuDiagnosisActivity;
@@ -109,11 +101,9 @@ import com.idit.gasomovil.menu.MenuSettingsActivity;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
@@ -251,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static StringBuilder mPartialResponse;
     private String mConnectedDeviceName;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -587,6 +578,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -1210,12 +1202,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(fuel_station_area.latitude, fuel_station_area.longitude), 0.020f);
                 geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @SuppressLint("RestrictedApi")
                     @Override
                     public void onKeyEntered(String key, GeoLocation location) {
                         sendNotification("GASOMOVIL",String.format("Has entrado a una estación de carga"));
                         fab.setVisibility(View.VISIBLE);
                     }
 
+                    @SuppressLint("RestrictedApi")
                     @Override
                     public void onKeyExited(String key) {
 

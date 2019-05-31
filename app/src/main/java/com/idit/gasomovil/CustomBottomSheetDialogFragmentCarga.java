@@ -42,7 +42,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static com.google.android.gms.internal.zzahn.runOnUiThread;
 
 /**
  * Created by viper on 12/12/2017.
@@ -184,7 +183,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         ref_fuel_station_price.child("magna").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Long price_fuel = (Long) dataSnapshot.getValue();
+                Long price_fuel = dataSnapshot.getValue(Long.class);
                 ref_fuel_station_service.child(serviceID).child("price").setValue(price_fuel * averageLts);
             }
 
@@ -343,6 +342,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
                 try {
                     if(mBluetoothLeService != null) {
                         mBluetoothLeService.writeCustomCharacteristic(new byte[]{(byte) 'P', (byte) '0', (byte) '1', (byte) '2', (byte) 'F',(byte) '\n'});
+                        mBluetoothLeService.readCustomCharacteristic();
+
                     }
                     Thread.sleep(1000);
                     publishProgress(counter);
@@ -355,8 +356,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         }
         @Override
         protected void onPostExecute(String result) {
-            //progressBar_loading.setVisibility(View.GONE);
-            //Toast.makeText(getContext(), String.valueOf(counter), Toast.LENGTH_SHORT).show();
+            progressBar_loading.setVisibility(View.GONE);
+            Toast.makeText(getContext(), String.valueOf(counter), Toast.LENGTH_SHORT).show();
         }
         @Override
         protected void onPreExecute() {
@@ -375,7 +376,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
     }
 
     private void updateConnectionState(final Boolean conn) {
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (conn){
@@ -387,6 +388,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
                 }
             }
         });
+
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

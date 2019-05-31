@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "8184245258-52v0dc545hk36iqsimg21bf56qa2mmet.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.idit.gasomovil",
+            "certificate_hash": "d20a13d23fb1339b9e5686bb0cae131c9b222126"
+          }
+        },
+        {
+          "client_id": "8184245258-hn15419vcb4ab6aqbu7t5frh3rj95aoa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.idit.gasomovil",
+            "certificate_hash": "b940c9aa0b3f76b4e234452b38e3b11edef36aad"
+          }
+        },
+        {
           "client_id": "8184245258-gsg6p24ll5ohmehmcha8ggevvmiv1gg5.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -25,15 +41,20 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8184245258-gsg6p24ll5ohmehmcha8ggevvmiv1gg5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "8184245258-c2jlqu7m4tclb89296vn6i3j1aplpllh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "idit.gasomovilIOS"
+              }
+            }
+          ]
         }
       }
     }

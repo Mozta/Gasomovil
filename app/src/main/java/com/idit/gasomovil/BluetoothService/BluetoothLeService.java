@@ -98,6 +98,8 @@ public class BluetoothLeService extends Service {
             }
         }
 
+
+
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -319,7 +321,12 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.setCharacteristicNotification(mReadCharacteristic, true);
         if(!mBluetoothGatt.readCharacteristic(mReadCharacteristic)){
             Log.w(TAG, "Failed to read characteristic");
+        }else{
+            byte[] read = mReadCharacteristic.getValue();
+            Log.d(TAG, read.toString());
         }
+
+
     }
 
     public void writeCustomCharacteristic(byte[] value) {
