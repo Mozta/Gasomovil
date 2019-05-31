@@ -3,39 +3,30 @@ package com.idit.gasomovil;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.provider.MediaStore;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -53,11 +44,10 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -65,6 +55,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
+
 public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
@@ -72,13 +63,6 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -91,8 +75,6 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private View mLoginFormView;
     private FirebaseAuth mAuth;
 
-    //Firebase
-    private FirebaseStorage storage;
     private StorageReference storageReference;
     private DatabaseReference myRef;
     private FirebaseUser user;
@@ -106,24 +88,25 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         //Init Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_register);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_register);
+        Toolbar toolbar = findViewById(R.id.toolbar_register);
         toolbar.setLogo(R.drawable.ic_logo_appbar);
         setSupportActionBar(toolbar);
 
-        storage = FirebaseStorage.getInstance();
+        //Firebase
+        FirebaseStorage storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         // Set up the login form.
-        mName = (EditText) findViewById(R.id.register_name);
-        mLastName = (EditText) findViewById(R.id.register_lastname);
+        mName = findViewById(R.id.register_name);
+        mLastName = findViewById(R.id.register_lastname);
 
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.register_email);
+        mEmailView = findViewById(R.id.register_email);
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.register_password);
+        mPasswordView = findViewById(R.id.register_password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -135,7 +118,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             }
         });
 
-        mPasswordViewConfirm = (EditText) findViewById(R.id.register_password_confirm);
+        mPasswordViewConfirm = findViewById(R.id.register_password_confirm);
         mPasswordViewConfirm.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -149,7 +132,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
         mSerie = (EditText) findViewById(R.id.register_serie);
 
-        Spinner spinner = (Spinner) findViewById(R.id.spinner_brand);
+        Spinner spinner = findViewById(R.id.spinner_brand);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.brand, android.R.layout.simple_spinner_item);
@@ -159,7 +142,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         spinner.setAdapter(adapter);
 
 
-        Spinner spinnerModel = (Spinner) findViewById(R.id.spinner_model);
+        Spinner spinnerModel = findViewById(R.id.spinner_model);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapterModel = ArrayAdapter.createFromResource(this,
                 R.array.model, android.R.layout.simple_spinner_item);
@@ -168,7 +151,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         // Apply the adapter to the spinner
         spinnerModel.setAdapter(adapterModel);
 
-        Spinner spinnerYear = (Spinner) findViewById(R.id.spinner_year);
+        Spinner spinnerYear = findViewById(R.id.spinner_year);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapterYear = ArrayAdapter.createFromResource(this,
                 R.array.year, android.R.layout.simple_spinner_item);
@@ -348,9 +331,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                 //Despues de subir se obtiene el enlace de descarga,
                                                 // el cual sera almacenado en el campo profile_image del usuario
-                                                usuario.mProfile_image = taskSnapshot.getDownloadUrl().toString();
+                                                usuario.mProfile_image = Objects.requireNonNull(taskSnapshot.getDownloadUrl()).toString();
                                                 //Se mapean los datos al modelo usuario y se suben
-                                                Map<String, String> values = new HashMap<>(usuario.tohashmap());
+                                                HashMap values = new HashMap<>(usuario.tohashmap());
                                                 myRef.setValue(values);
                                                 //Se actualiza el perfil de usuario para enlazar la
                                                 // imagen subida a la BD con la imagen de perfil de firebase user
@@ -363,7 +346,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                 if (task.isSuccessful()) {
-                                                                    //Log.d(TAG, "User profile updated.");
+                                                                    Log.d("TAG", "User profile updated.");
                                                                 }
                                                             }
                                                         });
@@ -421,32 +404,25 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     @Override
@@ -529,7 +505,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         }
 
         private HashMap tohashmap(){
-            HashMap<String, String> user = new HashMap();
+            HashMap<String, String> user = new HashMap<String, String>();
             user.put("name", mName);
             user.put("last_name",mLastName);
             user.put("email", mEmail);

@@ -23,11 +23,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +42,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static com.google.android.gms.internal.zzahn.runOnUiThread;
 
 /**
  * Created by viper on 12/12/2017.
@@ -91,6 +88,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
     private ProgressBar progressBar_loading;
     Integer counter = 1;
 
+    private BluetoothGattCharacteristic bluetoothGattCharacteristicHM_10;
+
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -131,6 +130,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 updateConnectionState(false);
+            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
     };
@@ -182,7 +183,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         ref_fuel_station_price.child("magna").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Long price_fuel = (Long) dataSnapshot.getValue();
+                Long price_fuel = dataSnapshot.getValue(Long.class);
                 ref_fuel_station_service.child(serviceID).child("price").setValue(price_fuel * averageLts);
             }
 
@@ -313,7 +314,6 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
             @Override
             public void onClick(View view) {
                 //TODO: Llamar al metodo para inyeccion de codigo al OBD para obtener la cantidad de combustible
-
                 btn_register_charge.startAnimation(slideDown);
                 btn_register_charge.setVisibility(View.GONE);
 
@@ -340,8 +340,14 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         protected String doInBackground(Integer... params) {
             for (; counter <= params[0]; counter++) {
                 try {
+                    if(mBluetoothLeService != null) {
+                        mBluetoothLeService.writeCustomCharacteristic(new byte[]{(byte) 'P', (byte) '0', (byte) '1', (byte) '2', (byte) 'F',(byte) '\n'});
+                        mBluetoothLeService.readCustomCharacteristic();
+
+                    }
                     Thread.sleep(1000);
                     publishProgress(counter);
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -350,8 +356,8 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
         }
         @Override
         protected void onPostExecute(String result) {
-            //progressBar_loading.setVisibility(View.GONE);
-            //Toast.makeText(getContext(), String.valueOf(counter), Toast.LENGTH_SHORT).show();
+            progressBar_loading.setVisibility(View.GONE);
+            Toast.makeText(getContext(), String.valueOf(counter), Toast.LENGTH_SHORT).show();
         }
         @Override
         protected void onPreExecute() {
@@ -363,9 +369,14 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
             slidr0.setCurrentValue(lts_actual+values[0]);
         }
     }
+    private void displayData(String data) {
+        if (data != null) {
+            Log.w(TAG,data);
+        }
+    }
 
     private void updateConnectionState(final Boolean conn) {
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (conn){
@@ -377,6 +388,7 @@ public class CustomBottomSheetDialogFragmentCarga extends BottomSheetDialogFragm
                 }
             }
         });
+
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
